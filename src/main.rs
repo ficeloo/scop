@@ -10,8 +10,6 @@ use winit::dpi::LogicalSize;
 use winit::event::ElementState;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::EventLoop;
-use winit::keyboard::KeyCode;
-use winit::keyboard::PhysicalKey;
 use winit::window::{Window, WindowBuilder};
 
 use anyhow::{Result, anyhow};
@@ -29,7 +27,9 @@ use std::ptr::slice_from_raw_parts;
 use std::time::Instant;
 
 // NOTE: This trait was called `ExtDebugUtilsExtension` in versions of `vulkanalia` prior to `v0.31.0`.
-use vulkanalia::vk::ExtDebugUtilsExtensionInstanceCommands;
+use vulkanalia::vk::{
+    CommandBufferInheritanceConditionalRenderingInfoEXT, ExtDebugUtilsExtensionInstanceCommands,
+};
 
 use thiserror::Error;
 
@@ -41,6 +41,7 @@ use vulkanalia::vk::KhrSwapchainExtensionDeviceCommands;
 
 use vulkanalia::bytecode::Bytecode;
 
+use key::*;
 use math::*;
 use obj::*;
 use std::mem::size_of;
@@ -48,6 +49,7 @@ use std::mem::size_of;
 // NOTE: From the STD Lib to copy memory of the vertex list to the mapped memory
 use std::ptr::copy_nonoverlapping as memcpy;
 
+mod key;
 mod math;
 mod obj;
 mod ppm;
@@ -113,9 +115,12 @@ fn main() -> Result<()> {
                         app.destroy();
                     }
                 }
+
                 WindowEvent::KeyboardInput { event, .. }
                     if event.state == ElementState::Pressed =>
                 {
+                    handle_input(event.physical_key, &app);
+                    todo!()
                     // match event.physical_key {
                     //     PhysicalKey::Code(KeyCode::ArrowLeft) if app.models > 1 => app.models -= 1,
                     //     PhysicalKey::Code(KeyCode::ArrowRight) if app.models < 4 => app.models += 1,
@@ -824,6 +829,8 @@ struct AppData {
     depth_image: vk::Image,
     depth_image_memory: vk::DeviceMemory,
     depth_image_view: vk::ImageView,
+    image_path: String,
+    texture_path: String,
 }
 
 // ── Queue Families ────────────────────────────────────────────────────────────
@@ -1811,7 +1818,7 @@ unsafe fn create_texture_image(
     device: &Device,
     data: &mut AppData,
 ) -> Result<()> {
-    let image_data = fs::read("resources/viking_room.ppm")?;
+    let image_data = fs::read(data.image_path /*"resources/viking_room.ppm"*/)?;
     let image = ppm::parse_ppm(image_data)?;
 
     let pixels = image.data;
