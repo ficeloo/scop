@@ -21,11 +21,11 @@ use vulkanalia::window as vk_window;
 
 use std::collections::{HashMap, HashSet};
 use std::ffi::CStr;
-use std::fs;
 use std::os::raw::c_void;
 use std::path::PathBuf;
 use std::ptr::slice_from_raw_parts;
 use std::time::Instant;
+use std::{fs, process};
 
 // NOTE: This trait was called `ExtDebugUtilsExtension` in versions of `vulkanalia` prior to `v0.31.0`.
 use vulkanalia::vk::ExtDebugUtilsExtensionInstanceCommands;
@@ -98,7 +98,10 @@ fn main() -> Result<()> {
             Event::WindowEvent { event, .. } => match event {
                 // Render a frame if our Vulkan app is not being destroyed.
                 WindowEvent::RedrawRequested if !elwt.exiting() && !minimized => {
-                    unsafe { app.render(&window) }.unwrap();
+                    if let Err(e) = unsafe { app.render(&window) } {
+                        error!("{e:#}");
+                        process::exit(1);
+                    }
                 }
                 WindowEvent::Resized(size) => {
                     if size.width == 0 || size.height == 0 {
@@ -313,7 +316,7 @@ impl App {
         let mut data = AppData::default();
         let instance = create_instance(window, &entry, &mut data)?;
         data.surface = vk_window::create_surface(&instance, &window, &window)?;
-        data.image_path = PathBuf::from("resources/model/42.obj");
+        data.image_path = PathBuf::from(DEFAULT_MODEL);
         // TODO: data.texture_path = PathBuf::from("resources/42.ppm");
         pick_physical_device(&instance, &mut data)?;
         let device = create_logical_device(&entry, &instance, &mut data)?;
@@ -2132,16 +2135,16 @@ fn build_vertex(models: &ObjModel, fv: &FaceVertex, center: [f32; 3], facteur: f
             (model_pos[1] - center[1]) * facteur,
             (model_pos[2] - center[2]) * facteur,
         ),
-        color: vec3(1.0, 1.0, 1.0),
+        color: vec3(1.0, 1.5, 1.75),
         tex_coord,
     }
 }
 
 fn load_model(data: &mut AppData) -> Result<()> {
-    let models = obj::parse_obj(&data.image_path)?;
+    let model = obj::parse_obj(&data.image_path)?;
 
-    let (min, max) = obj::compute_bounding_box(&models.positions);
-    let center = obj::compute_centroid(&models.positions);
+    let (min, max) = obj::compute_bounding_box(&model.positions);
+    let center = obj::compute_centroid(&model.positions);
     let etendu: [f32; 3] = [max[0] - min[0], max[1] - min[1], max[2] - min[2]];
     let etendu_max = etendu[0].max(etendu[1]).max(etendu[2]);
     let facteur: f32 = if etendu_max > f32::EPSILON {
@@ -2152,12 +2155,12 @@ fn load_model(data: &mut AppData) -> Result<()> {
 
     let mut unique_vertices = HashMap::new();
 
-    for face in &models.faces {
+    for face in &model.faces {
         for fv in face {
             if let Some(i) = unique_vertices.get(fv) {
                 data.indices.push(*i as u32);
             } else {
-                let vertex = build_vertex(&models, fv, center, facteur);
+                let vertex = build_vertex(&model, fv, center, facteur);
                 let index = data.vertices.len();
                 unique_vertices.insert(fv, index);
                 data.vertices.push(vertex);
