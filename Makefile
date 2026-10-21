@@ -6,7 +6,7 @@
 #    By: tcros <tcros@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/16 11:49:09 by tcros             #+#    #+#              #
-#    Updated: 2026/10/21 12:18:35 by tcros            ###   ########.fr        #
+#    Updated: 2026/10/21 12:28:02 by tcros            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,8 +33,6 @@ all: $(EXEC)
 
 $(EXEC): build
 	@printf "$(BLUE)[INFO] Liaison finale de $(EXEC)...$(NC)\n"
-	@	cp target/release/$(EXEC) ./$(EXEC) || { \
-		@printf "$(RED)[ERREUR] Échec de la création de $(EXEC)$(NC)"; exit 1; }
 	@printf "$(GREEN)[SUCCÈS] $(EXEC) compilé avec succès. ✅\n$(NC)"
 
 build:
@@ -50,9 +48,11 @@ test:
 	@$(CMPL) test
 
 fix:
-	@printf "$(ORANGE)[INFO] Fix par le compilateur du projet $(EXEC)...$(NC)\n"
-	@read -p "Le fix modifie automatiquement les fichiers concernés. Voulez-vous procéder ? [y/N]" ans && [ $${ans:-N} = y ] || (echo "Opération annulée."; exit 1)
-	@$(CMPL) clippy --fix
+	@printf "$(BLUE)[INFO] Fix par le compilateur du projet $(EXEC)...$(NC)\n"
+	@printf "$(ORANGE)Le fix modifie automatiquement les fichiers concernés.$(NC)\n"
+	@read -p "Voulez-vous procéder ? [y/N] : " ans && [ $${ans:-N} = y ] || (echo "Opération annulée."; exit 1)
+	@$(CMPL) clippy --fix --allow-dirty
+	@printf "$(GREEN)Fix effectué avec succès !$(NC)\n"
 
 clean:
 	@$(CMPL) clean
