@@ -114,17 +114,14 @@ fn main() -> Result<()> {
                     }
                 }
                 WindowEvent::KeyboardInput { event, .. }
-                    if event.state == ElementState::Pressed => {
-                        match event.physical_key {
-                            PhysicalKey::Code(KeyCode::ArrowLeft) if app.models > 1 => {
-                                app.models -= 1
-                            }
-                            PhysicalKey::Code(KeyCode::ArrowRight) if app.models < 4 => {
-                                app.models += 1
-                            }
-                            _ => {}
-                        }
-                    }
+                    if event.state == ElementState::Pressed =>
+                {
+                    // match event.physical_key {
+                    //     PhysicalKey::Code(KeyCode::ArrowLeft) if app.models > 1 => app.models -= 1,
+                    //     PhysicalKey::Code(KeyCode::ArrowRight) if app.models < 4 => app.models += 1,
+                    //     _ => {}
+                    // }
+                }
                 _ => {}
             },
             _ => {}
@@ -462,7 +459,7 @@ impl App {
         );
 
         let secondary_command_buffer = (0..self.models)
-            .map(|i| self.update_secondary_command_buffer(image_index, i))
+            .map(|i| self.update_secondary_command_buffer(image_index, 0))
             .collect::<Result<Vec<_>, _>>()?;
         self.device
             .cmd_execute_commands(command_buffer, &secondary_command_buffer[..]);
@@ -494,12 +491,9 @@ impl App {
 
         let command_buffer = command_buffers[model_index];
 
-        let y = ((model_index % 2) as f32) * 2.5 - 1.25;
-        let z = ((model_index / 2) as f32) * -2.0 + 1.0;
-
         let time = self.start.elapsed().as_secs_f32();
 
-        let model = Mat4::from_translation(vec3(0.0, y, z))
+        let model = Mat4::from_translation(vec3(0.0, 0.0, 0.0))
             * Mat4::from_axis_angle(vec3(0.0, 0.0, 1.0), Deg(90.0) * time);
 
         let model_bytes =
@@ -565,7 +559,7 @@ impl App {
         let time = self.start.elapsed().as_secs_f32();
 
         let view = Mat4::look_at_rh(
-            point3(6.0, 0.0, 2.0),
+            point3(3.0, 2.0, 1.5),
             point3(0.0, 0.0, 0.0),
             vec3(0.0, 0.0, 1.0),
         );
