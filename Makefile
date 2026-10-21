@@ -37,7 +37,7 @@ NC		= \033[0m
 
 ### REGLES D'INFERENCES ###
 # REGLES PHONY #
-.PHONY: all build run test clippy fix help clean fclean re 
+.PHONY: all build compile-shaders run test clippy fix help clean fclean re 
 
 ifeq ($(MODE),release)
 	all: $(EXEC)
@@ -52,9 +52,14 @@ $(EXEC): build
 	@cp -u $(BIN_DIR)/$(EXEC) ./$(EXEC)
 	@printf "$(GREEN)[SUCCÈS] $(EXEC) compilé avec succès ($(MODE)). ✅\n$(NC)"
 
-build:
+build: compile-shaders
 	@printf "$(BLUE)[INFO] Build de $(EXEC) en mode $(MODE)...$(NC)\n"
 	@$(CMPL) build $(RFLAG)
+
+compile-shaders:
+	@printf "$(BLUE)[INFO] Compilation des shaders...$(NC)\n"
+	@cd shaders && ./compile.sh
+	@printf "$(GREEN)[SUCCÈS] Compilation des shaders terminée !$(NC)\n"
 
 run:
 	@printf "$(ORANGE)[INFO] Run direct de $(EXEC) en mode $(MODE)...$(NC)\n"
