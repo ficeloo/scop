@@ -6,7 +6,7 @@
 #    By: tcros <tcros@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/16 11:49:09 by tcros             #+#    #+#              #
-#    Updated: 2026/06/16 11:51:34 by tcros            ###   ########.fr        #
+#    Updated: 2026/10/21 12:18:35 by tcros            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -51,7 +51,8 @@ test:
 
 fix:
 	@printf "$(ORANGE)[INFO] Fix par le compilateur du projet $(EXEC)...$(NC)\n"
-	@$(CMPL) test
+	@read -p "Le fix modifie automatiquement les fichiers concernés. Voulez-vous procéder ? [y/N]" ans && [ $${ans:-N} = y ] || (echo "Opération annulée."; exit 1)
+	@$(CMPL) clippy --fix
 
 clean:
 	@$(CMPL) clean
