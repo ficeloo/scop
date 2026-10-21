@@ -113,8 +113,8 @@ fn main() -> Result<()> {
                         app.destroy();
                     }
                 }
-                WindowEvent::KeyboardInput { event, .. } => {
-                    if event.state == ElementState::Pressed {
+                WindowEvent::KeyboardInput { event, .. }
+                    if event.state == ElementState::Pressed => {
                         match event.physical_key {
                             PhysicalKey::Code(KeyCode::ArrowLeft) if app.models > 1 => {
                                 app.models -= 1
@@ -125,7 +125,6 @@ fn main() -> Result<()> {
                             _ => {}
                         }
                     }
-                }
                 _ => {}
             },
             _ => {}

@@ -223,9 +223,9 @@ impl Matrix4 {
         let u = s.cross(f);
 
         mat4(
-            vec4(s.x.clone(), u.x.clone(), -f.x.clone(), 0.0),
-            vec4(s.y.clone(), u.y.clone(), -f.y.clone(), 0.0),
-            vec4(s.z.clone(), u.z.clone(), -f.z.clone(), 0.0),
+            vec4(s.x, u.x, -f.x, 0.0),
+            vec4(s.y, u.y, -f.y, 0.0),
+            vec4(s.z, u.z, -f.z, 0.0),
             vec4(-eye.dot(s), -eye.dot(u), eye.dot(f), 1.0),
         )
     }
@@ -447,9 +447,9 @@ pub struct PerspectiveFov {
 pub fn perspective<A: Into<Rad>>(fovy: A, aspect: f32, near: f32, far: f32) -> Matrix4 {
     PerspectiveFov {
         fovy: fovy.into(),
-        aspect: aspect,
-        near: near,
-        far: far,
+        aspect,
+        near,
+        far,
     }
     .into()
 }

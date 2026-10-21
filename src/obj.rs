@@ -82,9 +82,7 @@ fn parse_obj_str(content: &str) -> Result<ObjModel> {
                                 .transpose()?,
                         })
                     })
-                    .collect::<Result<Vec<_>>>()
-                    .map_err(anyhow::Error::from)
-                    .with_context(ctx)?;
+                    .collect::<Result<Vec<_>>>().with_context(ctx)?;
 
                 model.faces.extend(triangulate_face(&resolved));
             }
