@@ -23,13 +23,12 @@ use std::collections::{HashMap, HashSet};
 use std::ffi::CStr;
 use std::fs;
 use std::os::raw::c_void;
+use std::path::PathBuf;
 use std::ptr::slice_from_raw_parts;
 use std::time::Instant;
 
 // NOTE: This trait was called `ExtDebugUtilsExtension` in versions of `vulkanalia` prior to `v0.31.0`.
-use vulkanalia::vk::{
-    CommandBufferInheritanceConditionalRenderingInfoEXT, ExtDebugUtilsExtensionInstanceCommands,
-};
+use vulkanalia::vk::ExtDebugUtilsExtensionInstanceCommands;
 
 use thiserror::Error;
 
@@ -59,6 +58,7 @@ mod ppm;
 const MAX_FRAMES_IN_FLIGHT: usize = 2;
 
 const TARGET_SIZE: f32 = 1.50;
+const DEFAULT_MODEL: &str = "resources/model/42.obj";
 
 const PORTABILITY_MACOS_VERSION: Version = Version::new(1, 3, 216);
 
@@ -119,13 +119,13 @@ fn main() -> Result<()> {
                 WindowEvent::KeyboardInput { event, .. }
                     if event.state == ElementState::Pressed =>
                 {
-                    handle_input(event.physical_key, &app);
-                    todo!()
-                    // match event.physical_key {
-                    //     PhysicalKey::Code(KeyCode::ArrowLeft) if app.models > 1 => app.models -= 1,
-                    //     PhysicalKey::Code(KeyCode::ArrowRight) if app.models < 4 => app.models += 1,
-                    //     _ => {}
-                    // }
+                    match handle_input(event.physical_key, &mut app.data) {
+                        Ok(Signal::ReloadModel) => app.new_model = true,
+                        Ok(Signal::Nothing) => {}
+                        Err(e) => {
+                            error!("Error has ocurred while operating input {e}");
+                        }
+                    };
                 }
                 _ => {}
             },
@@ -300,6 +300,7 @@ struct App {
     device: Device,
     frame: usize,
     resized: bool,
+    new_model: bool,
     start: Instant,
     models: usize,
 }
@@ -312,6 +313,8 @@ impl App {
         let mut data = AppData::default();
         let instance = create_instance(window, &entry, &mut data)?;
         data.surface = vk_window::create_surface(&instance, &window, &window)?;
+        data.image_path = PathBuf::from("resources/model/42.obj");
+        // TODO: data.texture_path = PathBuf::from("resources/42.ppm");
         pick_physical_device(&instance, &mut data)?;
         let device = create_logical_device(&entry, &instance, &mut data)?;
         create_swapchain(window, &instance, &device, &mut data)?;
@@ -342,6 +345,7 @@ impl App {
             device,
             frame: 0,
             resized: false,
+            new_model: false,
             start: Instant::now(),
             models: 1,
         })
@@ -349,6 +353,11 @@ impl App {
 
     /// Renders a frame for our Vulkan app.
     unsafe fn render(&mut self, window: &Window) -> Result<()> {
+        if self.new_model {
+            self.new_model = false;
+            self.reload_model()?;
+        }
+
         self.device
             .wait_for_fences(&[self.data.in_flight_fences[self.frame]], true, u64::MAX)?;
 
@@ -417,6 +426,24 @@ impl App {
         }
 
         self.frame = (self.frame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+        Ok(())
+    }
+
+    unsafe fn reload_model(&mut self) -> Result<()> {
+        self.device.device_wait_idle()?;
+        self.device.destroy_buffer(self.data.index_buffer, None);
+        self.device.free_memory(self.data.index_buffer_memory, None);
+        self.device.destroy_buffer(self.data.vertex_buffer, None);
+        self.device
+            .free_memory(self.data.vertex_buffer_memory, None);
+
+        self.data.vertices.clear();
+        self.data.indices.clear();
+
+        load_model(&mut self.data)?;
+        create_vertex_buffer(&self.instance, &self.device, &mut self.data)?;
+        create_index_buffer(&self.instance, &self.device, &mut self.data)?;
 
         Ok(())
     }
@@ -509,7 +536,7 @@ impl App {
             .subpass(0)
             .framebuffer(self.data.framebuffers[image_index]);
 
-        let opacity = (model_index + 1) as f32 * 0.25;
+        let opacity = (model_index + 1) as f32;
         let opacity_bytes = &opacity.to_ne_bytes()[..];
 
         let info = vk::CommandBufferBeginInfo::builder()
@@ -829,8 +856,8 @@ struct AppData {
     depth_image: vk::Image,
     depth_image_memory: vk::DeviceMemory,
     depth_image_view: vk::ImageView,
-    image_path: String,
-    texture_path: String,
+    image_path: PathBuf,
+    texture_path: PathBuf,
 }
 
 // ── Queue Families ────────────────────────────────────────────────────────────
@@ -1818,7 +1845,7 @@ unsafe fn create_texture_image(
     device: &Device,
     data: &mut AppData,
 ) -> Result<()> {
-    let image_data = fs::read(data.image_path /*"resources/viking_room.ppm"*/)?;
+    let image_data = fs::read("resources/texture/viking_room.ppm")?;
     let image = ppm::parse_ppm(image_data)?;
 
     let pixels = image.data;
@@ -2111,7 +2138,7 @@ fn build_vertex(models: &ObjModel, fv: &FaceVertex, center: [f32; 3], facteur: f
 }
 
 fn load_model(data: &mut AppData) -> Result<()> {
-    let models = obj::parse_obj("resources/viking_room.obj")?;
+    let models = obj::parse_obj(&data.image_path)?;
 
     let (min, max) = obj::compute_bounding_box(&models.positions);
     let center = obj::compute_centroid(&models.positions);
