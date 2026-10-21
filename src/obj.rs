@@ -1,5 +1,6 @@
 use anyhow::{Context, Result, anyhow};
 use std::fs::read_to_string;
+use std::path::PathBuf;
 use thiserror::Error;
 
 #[derive(Clone, Debug, Default)]
@@ -38,7 +39,7 @@ pub enum ObjError {
     IoError(std::io::Error),
 }
 
-pub fn parse_obj(path: &str) -> Result<ObjModel> {
+pub fn parse_obj(path: &PathBuf) -> Result<ObjModel> {
     let content = read_to_string(path).map_err(ObjError::IoError)?;
 
     parse_obj_str(&content)
@@ -82,7 +83,8 @@ fn parse_obj_str(content: &str) -> Result<ObjModel> {
                                 .transpose()?,
                         })
                     })
-                    .collect::<Result<Vec<_>>>().with_context(ctx)?;
+                    .collect::<Result<Vec<_>>>()
+                    .with_context(ctx)?;
 
                 model.faces.extend(triangulate_face(&resolved));
             }
