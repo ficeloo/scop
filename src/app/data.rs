@@ -55,5 +55,6 @@ pub struct AppData {
     pub depth_image_memory: vk::DeviceMemory,
     pub depth_image_view: vk::ImageView,
     pub image_path: PathBuf,
-    pub texture_path: PathBuf,
+    pub texture_path_vec: Vec<PathBuf>,
+    pub texture_path_index: usize,
 }
