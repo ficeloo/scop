@@ -45,6 +45,7 @@ use vulkan::command::{
 use vulkan::device::{create_logical_device, pick_physical_device};
 use vulkan::framebuffer::create_framebuffers;
 use vulkan::instance::{VALIDATION_ENABLED, create_instance};
+use vulkan::memory::get_memory_type_index;
 use vulkan::pipeline::create_pipeline;
 use vulkan::render_pass::create_render_pass;
 use vulkan::swapchain::{create_swapchain, create_swapchain_image_views};
@@ -972,25 +973,6 @@ unsafe fn create_index_buffer(
     device.free_memory(staging_buffer_memory, None);
 
     Ok(())
-}
-
-// ── Memory Handling ─────────────────────────────────────────────────────────────────
-
-unsafe fn get_memory_type_index(
-    instance: &Instance,
-    data: &mut AppData,
-    properties: vk::MemoryPropertyFlags,
-    requirements: vk::MemoryRequirements,
-) -> Result<u32> {
-    let memory = instance.get_physical_device_memory_properties(data.physical_device);
-
-    (0..memory.memory_type_count)
-        .find(|i| {
-            let suitable = (requirements.memory_type_bits & (1 << i)) != 0;
-            let memory_type = memory.memory_types[*i as usize];
-            suitable && memory_type.property_flags.contains(properties)
-        })
-        .ok_or_else(|| anyhow!("Failed to find suitable memory type."))
 }
 
 // ── Uniform Buffer ─────────────────────────────────────────────────────────────────
