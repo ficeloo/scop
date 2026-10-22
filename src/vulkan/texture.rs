@@ -1,4 +1,5 @@
-use std::fs;
+use std::path::PathBuf;
+use std::{fs, io};
 
 // NOTE: From the STD Lib to copy memory of the vertex list to the mapped memory
 use std::ptr::copy_nonoverlapping as memcpy;
@@ -16,12 +17,24 @@ use crate::vulkan::image::{
 
 // ── Texture Image ─────────────────────────────────────────────────────────────────
 
+pub fn init_texture_path() -> Result<Vec<PathBuf>> {
+    let mut path_vec = fs::read_dir("resources/texture/")?
+        .map(|res| res.map(|dir| dir.path()))
+        .collect::<Result<Vec<_>, io::Error>>()?
+        .into_iter()
+        .filter(|path| path.extension().is_some_and(|ext| ext == "ppm") && path.is_file())
+        .collect::<Vec<_>>();
+
+    path_vec.sort();
+    Ok(path_vec)
+}
+
 pub unsafe fn create_texture_image(
     instance: &Instance,
     device: &Device,
     data: &mut AppData,
 ) -> Result<()> {
-    let image_data = fs::read("resources/texture/viking_room.ppm")?;
+    let image_data = fs::read(&data.texture_path_vec[data.texture_path_index])?;
     let image = ppm::parse_ppm(image_data)?;
 
     let pixels = image.data;
