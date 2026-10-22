@@ -78,7 +78,7 @@ fn main() -> Result<()> {
                 {
                     match handle_input(event.physical_key, &mut app.data) {
                         Ok(Signal::ReloadModel) => app.new_model = true,
-                        Ok(Signal::ReloadTexture) => {}
+                        Ok(Signal::ReloadTexture) => app.new_texture = true,
                         Ok(Signal::Nothing) => {}
                         Err(e) => {
                             error!("Error has ocurred while operating input {e}");
