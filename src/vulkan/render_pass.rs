@@ -1,7 +1,8 @@
 use anyhow::Result;
 use vulkanalia::prelude::v1_0::*;
 
-use crate::{AppData, get_depth_format};
+use crate::AppData;
+use crate::vulkan::attachment::get_depth_format;
 
 // ── Render Pass ─────────────────────────────────────────────────────────────────
 
