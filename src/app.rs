@@ -36,7 +36,7 @@ use crate::vulkan::render_pass::create_render_pass;
 use crate::vulkan::swapchain::{create_swapchain, create_swapchain_image_views};
 use crate::vulkan::sync::create_sync_objects;
 use crate::vulkan::texture::{
-    create_texture_image, create_texture_image_view, create_texture_sampler,
+    create_texture_image, create_texture_image_view, create_texture_sampler, init_texture_path,
 };
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -68,7 +68,7 @@ impl App {
         let instance = create_instance(window, &entry, &mut data)?;
         data.surface = vk_window::create_surface(&instance, &window, &window)?;
         data.image_path = PathBuf::from(DEFAULT_MODEL);
-        // TODO: data.texture_path = PathBuf::from("resources/42.ppm");
+        data.texture_path_vec = init_texture_path()?;
         pick_physical_device(&instance, &mut data)?;
         let device = create_logical_device(&entry, &instance, &mut data)?;
         create_swapchain(window, &instance, &device, &mut data)?;
