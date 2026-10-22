@@ -38,6 +38,7 @@ use math::*;
 use obj::*;
 use std::mem::size_of;
 use vulkan::device::{QueueFamilyIndices, create_logical_device, pick_physical_device};
+use vulkan::framebuffer::create_framebuffers;
 use vulkan::instance::{VALIDATION_ENABLED, create_instance};
 use vulkan::pipeline::create_pipeline;
 use vulkan::render_pass::create_render_pass;
@@ -633,27 +634,6 @@ struct AppData {
     depth_image_view: vk::ImageView,
     image_path: PathBuf,
     texture_path: PathBuf,
-}
-
-// ── Framebuffer ─────────────────────────────────────────────────────────────────
-
-unsafe fn create_framebuffers(device: &Device, data: &mut AppData) -> Result<()> {
-    data.framebuffers = data
-        .swapchain_image_views
-        .iter()
-        .map(|i| {
-            let attachments = &[data.color_image_view, data.depth_image_view, *i];
-            let create_info = vk::FramebufferCreateInfo::builder()
-                .render_pass(data.render_pass)
-                .attachments(attachments)
-                .width(data.swapchain_extent.width)
-                .height(data.swapchain_extent.height)
-                .layers(1);
-            device.create_framebuffer(&create_info, None)
-        })
-        .collect::<Result<Vec<_>, _>>()?;
-
-    Ok(())
 }
 
 // ── Command Buffers ─────────────────────────────────────────────────────────────────
