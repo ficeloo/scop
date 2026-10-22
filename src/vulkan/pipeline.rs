@@ -2,7 +2,8 @@ use anyhow::Result;
 use vulkanalia::bytecode::Bytecode;
 use vulkanalia::prelude::v1_0::*;
 
-use crate::{AppData, Vertex};
+use crate::AppData;
+use crate::model::Vertex;
 
 // ── Pipeline ─────────────────────────────────────────────────────────────────
 
