@@ -21,7 +21,7 @@ pub const VALIDATION_LAYER: vk::ExtensionName =
 
 // ── Debug ─────────────────────────────────────────────────────────────────────
 
-pub extern "system" fn debug_callback(
+extern "system" fn debug_callback(
     severity: vk::DebugUtilsMessageSeverityFlagsEXT,
     type_: vk::DebugUtilsMessageTypeFlagsEXT,
     data: *const vk::DebugUtilsMessengerCallbackDataEXT,
