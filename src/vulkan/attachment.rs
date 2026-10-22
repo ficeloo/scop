@@ -1,7 +1,8 @@
 use anyhow::{Result, anyhow};
 use vulkanalia::prelude::v1_0::*;
 
-use crate::{AppData, create_image, create_image_view, transition_image_layout};
+use crate::AppData;
+use crate::vulkan::image::{create_image, create_image_view, transition_image_layout};
 
 // ── MSAA ─────────────────────────────────────────────────────────────────
 
