@@ -1,6 +1,12 @@
 use std::f32::consts::PI;
 use std::ops::{Div, Index, IndexMut, Mul, Sub};
 
+// ── Type ─────────────────────────────────────────────────────────────────
+
+pub type Vec2 = Vector2;
+pub type Vec3 = Vector3;
+pub type Mat4 = Matrix4;
+
 // ── Point 3 ─────────────────────────────────────────────────────────────────
 
 #[repr(C)]

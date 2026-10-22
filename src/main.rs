@@ -68,12 +68,6 @@ mod vulkan;
 const TARGET_SIZE: f32 = 1.50;
 const DEFAULT_MODEL: &str = "resources/model/42.obj";
 
-// ── Type ─────────────────────────────────────────────────────────────────
-
-type Vec2 = math::Vector2;
-type Vec3 = math::Vector3;
-type Mat4 = math::Matrix4;
-
 // ── Entry Point ───────────────────────────────────────────────────────────────
 
 fn main() -> Result<()> {

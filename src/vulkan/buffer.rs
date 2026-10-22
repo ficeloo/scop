@@ -6,9 +6,10 @@ use std::ptr::copy_nonoverlapping as memcpy;
 use anyhow::Result;
 use vulkanalia::prelude::v1_0::*;
 
+use crate::math::Mat4;
 use crate::vulkan::command::{begin_single_time_commands, end_single_time_commands};
 use crate::vulkan::memory::get_memory_type_index;
-use crate::{AppData, Mat4, Vertex};
+use crate::{AppData, Vertex};
 
 // ── Buffer ────────────────────────────────────────────────────────────────────
 
