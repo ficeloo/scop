@@ -4,7 +4,7 @@ use std::mem::size_of;
 use anyhow::Result;
 use vulkanalia::prelude::v1_0::*;
 
-use crate::AppData;
+use crate::app::AppData;
 use crate::math::{Vec2, Vec3, vec2, vec3};
 use crate::obj::{self, FaceVertex, ObjModel};
 

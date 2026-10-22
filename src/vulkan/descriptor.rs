@@ -3,7 +3,7 @@ use std::mem::size_of;
 use anyhow::Result;
 use vulkanalia::prelude::v1_0::*;
 
-use crate::AppData;
+use crate::app::AppData;
 use crate::vulkan::buffer::UniformBufferObject;
 
 // ── Descriptor ─────────────────────────────────────────────────────────────────

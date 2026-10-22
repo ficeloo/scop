@@ -1,7 +1,7 @@
 use anyhow::{Result, anyhow};
 use vulkanalia::prelude::v1_0::*;
 
-use crate::AppData;
+use crate::app::AppData;
 use crate::vulkan::command::{begin_single_time_commands, end_single_time_commands};
 use crate::vulkan::memory::get_memory_type_index;
 

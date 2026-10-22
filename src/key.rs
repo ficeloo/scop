@@ -2,7 +2,7 @@ use anyhow::Result;
 use winit::keyboard::KeyCode;
 use winit::keyboard::PhysicalKey;
 
-use crate::AppData;
+use crate::app::AppData;
 
 pub enum Signal {
     Nothing,

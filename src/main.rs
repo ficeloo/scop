@@ -32,9 +32,10 @@ use vulkanalia::vk::KhrSurfaceExtensionInstanceCommands;
 // NOTE: This trait was called `KhrSwapchainExtension` in versions of `vulkanalia` prior to `v0.31.0`.
 use vulkanalia::vk::KhrSwapchainExtensionDeviceCommands;
 
+use app::AppData;
 use key::*;
 use math::*;
-use model::{Vertex, load_model};
+use model::load_model;
 use std::mem::size_of;
 use vulkan::attachment::{create_color_objects, create_depth_objects};
 use vulkan::buffer::{
@@ -56,6 +57,7 @@ use vulkan::texture::{create_texture_image, create_texture_image_view, create_te
 // NOTE: From the STD Lib to copy memory of the vertex list to the mapped memory
 use std::ptr::copy_nonoverlapping as memcpy;
 
+mod app;
 mod key;
 mod math;
 mod model;
@@ -581,58 +583,4 @@ impl App {
             .for_each(|v| self.device.destroy_image_view(*v, None));
         self.device.destroy_swapchain_khr(self.data.swapchain, None);
     }
-}
-
-// ── App Data ──────────────────────────────────────────────────────────────────
-
-/// The Vulkan handles and associated properties used by our Vulkan app.
-#[derive(Clone, Debug, Default)]
-struct AppData {
-    surface: vk::SurfaceKHR,
-    messenger: vk::DebugUtilsMessengerEXT,
-    physical_device: vk::PhysicalDevice,
-    msaa_samples: vk::SampleCountFlags,
-    color_image: vk::Image,
-    color_image_memory: vk::DeviceMemory,
-    color_image_view: vk::ImageView,
-    graphics_queue: vk::Queue,
-    present_queue: vk::Queue,
-    swapchain_format: vk::Format,
-    swapchain_extent: vk::Extent2D,
-    swapchain: vk::SwapchainKHR,
-    swapchain_images: Vec<vk::Image>,
-    swapchain_image_views: Vec<vk::ImageView>,
-    render_pass: vk::RenderPass,
-    descriptor_set_layout: vk::DescriptorSetLayout,
-    pipeline_layout: vk::PipelineLayout,
-    pipeline: vk::Pipeline,
-    framebuffers: Vec<vk::Framebuffer>,
-    command_pool: vk::CommandPool,
-    command_pools: Vec<vk::CommandPool>,
-    command_buffers: Vec<vk::CommandBuffer>,
-    secondary_command_buffers: Vec<Vec<vk::CommandBuffer>>,
-    image_available_semaphores: Vec<vk::Semaphore>,
-    render_finished_semaphores: Vec<vk::Semaphore>,
-    in_flight_fences: Vec<vk::Fence>,
-    images_in_flight: Vec<vk::Fence>,
-    vertices: Vec<Vertex>,
-    indices: Vec<u32>,
-    vertex_buffer: vk::Buffer,
-    vertex_buffer_memory: vk::DeviceMemory,
-    index_buffer: vk::Buffer,
-    index_buffer_memory: vk::DeviceMemory,
-    uniform_buffers: Vec<vk::Buffer>,
-    uniform_buffers_memory: Vec<vk::DeviceMemory>,
-    descriptor_pool: vk::DescriptorPool,
-    descriptor_sets: Vec<vk::DescriptorSet>,
-    mip_levels: u32,
-    texture_image: vk::Image,
-    texture_image_memory: vk::DeviceMemory,
-    texture_image_view: vk::ImageView,
-    texture_sampler: vk::Sampler,
-    depth_image: vk::Image,
-    depth_image_memory: vk::DeviceMemory,
-    depth_image_view: vk::ImageView,
-    image_path: PathBuf,
-    texture_path: PathBuf,
 }

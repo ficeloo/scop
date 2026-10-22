@@ -8,7 +8,7 @@ use vulkanalia::vk::KhrSurfaceExtensionInstanceCommands;
 // NOTE: This trait was called `KhrSwapchainExtension` in versions of `vulkanalia` prior to `v0.31.0`.
 use vulkanalia::vk::KhrSwapchainExtensionDeviceCommands;
 
-use crate::AppData;
+use crate::app::AppData;
 use crate::vulkan::device::QueueFamilyIndices;
 use crate::vulkan::image::create_image_view;
 

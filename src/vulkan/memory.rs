@@ -1,7 +1,7 @@
 use anyhow::{Result, anyhow};
 use vulkanalia::prelude::v1_0::*;
 
-use crate::AppData;
+use crate::app::AppData;
 
 // ── Memory Handling ─────────────────────────────────────────────────────────────────
 

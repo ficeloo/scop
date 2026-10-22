@@ -8,7 +8,7 @@ use vulkanalia::prelude::v1_0::*;
 // NOTE: This trait was called `KhrSurfaceExtension` in versions of `vulkanalia` prior to `v0.31.0`.
 use vulkanalia::vk::KhrSurfaceExtensionInstanceCommands;
 
-use crate::AppData;
+use crate::app::AppData;
 use crate::vulkan::instance::{PORTABILITY_MACOS_VERSION, VALIDATION_ENABLED, VALIDATION_LAYER};
 use crate::vulkan::swapchain::SwapchainSupport;
 

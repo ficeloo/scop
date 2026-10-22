@@ -9,7 +9,7 @@ use vulkanalia::prelude::v1_0::*;
 use vulkanalia::window as vk_window;
 use winit::window::Window;
 
-use crate::AppData;
+use crate::app::AppData;
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 

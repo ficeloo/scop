@@ -6,12 +6,13 @@ use std::ptr::copy_nonoverlapping as memcpy;
 use anyhow::{Result, anyhow};
 use vulkanalia::prelude::v1_0::*;
 
+use crate::app::AppData;
+use crate::ppm;
 use crate::vulkan::buffer::create_buffer;
 use crate::vulkan::command::{begin_single_time_commands, end_single_time_commands};
 use crate::vulkan::image::{
     copy_buffer_to_image, create_image, create_image_view, transition_image_layout,
 };
-use crate::{AppData, ppm};
 
 // ── Texture Image ─────────────────────────────────────────────────────────────────
 
