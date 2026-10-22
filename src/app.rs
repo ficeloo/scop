@@ -55,6 +55,7 @@ pub struct App {
     frame: usize,
     pub resized: bool,
     pub new_model: bool,
+    pub new_texture: bool,
     start: Instant,
     models: usize,
 }
@@ -100,6 +101,7 @@ impl App {
             frame: 0,
             resized: false,
             new_model: false,
+            new_texture: false,
             start: Instant::now(),
             models: 1,
         })
