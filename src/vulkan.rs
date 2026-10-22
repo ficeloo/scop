@@ -1,4 +1,5 @@
 pub mod attachment;
+pub mod command;
 pub mod device;
 pub mod framebuffer;
 pub mod instance;

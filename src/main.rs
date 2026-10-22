@@ -38,7 +38,11 @@ use math::*;
 use obj::*;
 use std::mem::size_of;
 use vulkan::attachment::{create_color_objects, create_depth_objects};
-use vulkan::device::{QueueFamilyIndices, create_logical_device, pick_physical_device};
+use vulkan::command::{
+    begin_single_time_commands, create_command_buffers, create_command_pools,
+    end_single_time_commands,
+};
+use vulkan::device::{create_logical_device, pick_physical_device};
 use vulkan::framebuffer::create_framebuffers;
 use vulkan::instance::{VALIDATION_ENABLED, create_instance};
 use vulkan::pipeline::create_pipeline;
@@ -637,55 +641,6 @@ struct AppData {
     texture_path: PathBuf,
 }
 
-// ── Command Buffers ─────────────────────────────────────────────────────────────────
-
-unsafe fn create_command_pools(
-    instance: &Instance,
-    device: &Device,
-    data: &mut AppData,
-) -> Result<()> {
-    data.command_pool = create_command_pool(instance, device, data)?;
-
-    let num_images = data.swapchain_images.len();
-    for _ in 0..num_images {
-        let command_pool = create_command_pool(instance, device, data)?;
-        data.command_pools.push(command_pool);
-    }
-
-    Ok(())
-}
-
-unsafe fn create_command_pool(
-    instance: &Instance,
-    device: &Device,
-    data: &AppData,
-) -> Result<vk::CommandPool> {
-    let indices = QueueFamilyIndices::get(instance, data, data.physical_device)?;
-
-    let info = vk::CommandPoolCreateInfo::builder()
-        .flags(vk::CommandPoolCreateFlags::TRANSIENT)
-        .queue_family_index(indices.graphics);
-
-    Ok(device.create_command_pool(&info, None)?)
-}
-
-unsafe fn create_command_buffers(device: &Device, data: &mut AppData) -> Result<()> {
-    let num_images = data.swapchain_images.len();
-    for image_index in 0..num_images {
-        let allocate_info = vk::CommandBufferAllocateInfo::builder()
-            .command_pool(data.command_pools[image_index])
-            .level(vk::CommandBufferLevel::PRIMARY)
-            .command_buffer_count(1);
-
-        let command_buffer = device.allocate_command_buffers(&allocate_info)?[0];
-        data.command_buffers.push(command_buffer);
-    }
-
-    data.secondary_command_buffers = vec![vec![]; data.swapchain_images.len()];
-
-    Ok(())
-}
-
 unsafe fn create_buffer(
     instance: &Instance,
     device: &Device,
@@ -717,40 +672,6 @@ unsafe fn create_buffer(
     device.bind_buffer_memory(buffer, buffer_memory, 0)?;
 
     Ok((buffer, buffer_memory))
-}
-
-unsafe fn begin_single_time_commands(device: &Device, data: &AppData) -> Result<vk::CommandBuffer> {
-    let info = vk::CommandBufferAllocateInfo::builder()
-        .level(vk::CommandBufferLevel::PRIMARY)
-        .command_pool(data.command_pool)
-        .command_buffer_count(1);
-
-    let command_buffer = device.allocate_command_buffers(&info)?[0];
-
-    let info =
-        vk::CommandBufferBeginInfo::builder().flags(vk::CommandBufferUsageFlags::ONE_TIME_SUBMIT);
-
-    device.begin_command_buffer(command_buffer, &info)?;
-
-    Ok(command_buffer)
-}
-
-unsafe fn end_single_time_commands(
-    device: &Device,
-    data: &AppData,
-    command_buffer: vk::CommandBuffer,
-) -> Result<()> {
-    device.end_command_buffer(command_buffer)?;
-
-    let command_buffers = &[command_buffer];
-    let info = vk::SubmitInfo::builder().command_buffers(command_buffers);
-
-    device.queue_submit(data.graphics_queue, &[info], vk::Fence::null())?;
-    device.queue_wait_idle(data.graphics_queue)?;
-
-    device.free_command_buffers(data.command_pool, &[command_buffer]);
-
-    Ok(())
 }
 
 unsafe fn transition_image_layout(
