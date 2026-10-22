@@ -15,7 +15,9 @@ use super::App;
 use crate::math::{self, Deg, Mat4, point3, vec3};
 use crate::model::load_model;
 use crate::vulkan::buffer::{UniformBufferObject, create_index_buffer, create_vertex_buffer};
+use crate::vulkan::descriptor::{create_descriptor_pool, create_descriptor_sets};
 use crate::vulkan::sync::MAX_FRAMES_IN_FLIGHT;
+use crate::vulkan::texture::{create_texture_image, create_texture_image_view};
 
 // ── Render ────────────────────────────────────────────────────────────────────
 
@@ -25,6 +27,10 @@ impl App {
         if self.new_model {
             self.new_model = false;
             self.reload_model()?;
+        }
+        if self.new_texture {
+            self.new_texture = false;
+            self.reload_texture()?;
         }
 
         self.device
@@ -95,6 +101,24 @@ impl App {
         }
 
         self.frame = (self.frame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+        Ok(())
+    }
+
+    unsafe fn reload_texture(&mut self) -> Result<()> {
+        self.device.device_wait_idle()?;
+        self.device
+            .destroy_image_view(self.data.texture_image_view, None);
+        self.device.destroy_image(self.data.texture_image, None);
+        self.device
+            .free_memory(self.data.texture_image_memory, None);
+        self.device
+            .destroy_descriptor_pool(self.data.descriptor_pool, None);
+
+        create_texture_image(&self.instance, &self.device, &mut self.data)?;
+        create_texture_image_view(&self.device, &mut self.data)?;
+        create_descriptor_pool(&self.device, &mut self.data)?;
+        create_descriptor_sets(&self.device, &mut self.data)?;
 
         Ok(())
     }
