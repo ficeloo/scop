@@ -232,6 +232,9 @@ impl App {
         let opacity = (model_index + 1) as f32;
         let opacity_bytes = &opacity.to_ne_bytes()[..];
 
+        let mesh_view: f32 = if self.mesh_view { 1.0 } else { 0.0 };
+        let mesh_view_bytes = &mesh_view.to_ne_bytes()[..];
+
         let info = vk::CommandBufferBeginInfo::builder()
             .flags(vk::CommandBufferUsageFlags::RENDER_PASS_CONTINUE)
             .inheritance_info(&inheritance_info);
@@ -272,6 +275,13 @@ impl App {
             vk::ShaderStageFlags::FRAGMENT,
             64,
             opacity_bytes,
+        );
+        self.device.cmd_push_constants(
+            command_buffer,
+            self.data.pipeline_layout,
+            vk::ShaderStageFlags::FRAGMENT,
+            68,
+            mesh_view_bytes,
         );
         self.device
             .cmd_draw_indexed(command_buffer, self.data.indices.len() as u32, 1, 0, 0, 0);
