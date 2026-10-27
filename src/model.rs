@@ -82,7 +82,7 @@ fn build_vertex(models: &ObjModel, fv: &FaceVertex, center: [f32; 3], facteur: f
             (model_pos[0] - center[0]) * facteur,
             (model_pos[1] - center[1]) * facteur,
         ),
-        color: vec3(1.0, 1.5, 1.75),
+        color: vec3(0.0, 0.0, 0.0),
         tex_coord,
     }
 }

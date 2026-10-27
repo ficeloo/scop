@@ -6,6 +6,7 @@ use crate::app::AppData;
 
 pub enum Signal {
     Nothing,
+    Exit,
     ReloadModel,
     ReloadTexture,
 }
@@ -49,6 +50,7 @@ pub fn handle_input(input: PhysicalKey, data: &mut AppData) -> Result<Signal> {
         PhysicalKey::Code(KeyCode::Enter) => file_manager(data),
         PhysicalKey::Code(KeyCode::ArrowLeft) => change_texture_index(data, false),
         PhysicalKey::Code(KeyCode::ArrowRight) => change_texture_index(data, true),
+        PhysicalKey::Code(KeyCode::Escape) => Ok(Signal::Exit),
         _ => Ok(Signal::Nothing),
     }
 }
