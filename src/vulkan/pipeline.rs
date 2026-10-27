@@ -91,7 +91,7 @@ pub unsafe fn create_pipeline(device: &Device, data: &mut AppData) -> Result<()>
     let frag_push_constant_range = vk::PushConstantRange::builder()
         .stage_flags(vk::ShaderStageFlags::FRAGMENT)
         .offset(64)
-        .size(4);
+        .size(8);
 
     let set_layouts = &[data.descriptor_set_layout];
     let push_constant_ranges = &[vert_push_constant_range, frag_push_constant_range];

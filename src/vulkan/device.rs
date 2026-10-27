@@ -186,7 +186,8 @@ pub unsafe fn create_logical_device(
 
     let features = vk::PhysicalDeviceFeatures::builder()
         .sampler_anisotropy(true)
-        .sample_rate_shading(true);
+        .sample_rate_shading(true)
+        .geometry_shader(true);
 
     let info = vk::DeviceCreateInfo::builder()
         .queue_create_infos(&queue_infos)
