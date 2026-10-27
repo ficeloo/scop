@@ -75,7 +75,11 @@ fn main() -> Result<()> {
                 {
                     match handle_input(event.physical_key, &mut app.data) {
                         Ok(Signal::ReloadModel) => app.new_model = true,
-                        Ok(Signal::ReloadTexture) => app.new_texture = true,
+                        Ok(Signal::ReloadTexture) => {
+                            if !app.mesh_view {
+                                app.new_texture = true;
+                            }
+                        }
                         Ok(Signal::ToggleMeshView) => app.mesh_view = !app.mesh_view,
                         Ok(Signal::Exit) => {
                             exit_app(&mut app, elwt);
