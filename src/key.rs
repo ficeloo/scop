@@ -9,6 +9,7 @@ pub enum Signal {
     Exit,
     ReloadModel,
     ReloadTexture,
+    ToggleMeshView,
 }
 
 fn change_texture_index(data: &mut AppData, direction: bool) -> Result<Signal> {
@@ -45,11 +46,16 @@ fn file_manager(data: &mut AppData) -> Result<Signal> {
     }
 }
 
+fn toggle_mesh_view() -> Result<Signal> {
+    Ok(Signal::ToggleMeshView)
+}
+
 pub fn handle_input(input: PhysicalKey, data: &mut AppData) -> Result<Signal> {
     match input {
         PhysicalKey::Code(KeyCode::Enter) => file_manager(data),
         PhysicalKey::Code(KeyCode::ArrowLeft) => change_texture_index(data, false),
         PhysicalKey::Code(KeyCode::ArrowRight) => change_texture_index(data, true),
+        PhysicalKey::Code(KeyCode::KeyM) => toggle_mesh_view(),
         PhysicalKey::Code(KeyCode::Escape) => Ok(Signal::Exit),
         _ => Ok(Signal::Nothing),
     }

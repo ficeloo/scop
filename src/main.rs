@@ -76,13 +76,14 @@ fn main() -> Result<()> {
                     match handle_input(event.physical_key, &mut app.data) {
                         Ok(Signal::ReloadModel) => app.new_model = true,
                         Ok(Signal::ReloadTexture) => app.new_texture = true,
-                        Ok(Signal::Nothing) => {}
+                        Ok(Signal::ToggleMeshView) => app.mesh_view = !app.mesh_view,
                         Ok(Signal::Exit) => {
                             exit_app(&mut app, elwt);
                         }
                         Err(e) => {
                             error!("Error has ocurred while operating input {e}");
                         }
+                        Ok(Signal::Nothing) => {}
                     };
                 }
                 _ => {}
