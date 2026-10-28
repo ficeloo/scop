@@ -24,7 +24,9 @@ use vulkanalia::vk::KhrSwapchainExtensionDeviceCommands;
 use crate::model::load_model;
 use crate::vulkan::attachment::{create_color_objects, create_depth_objects};
 use crate::vulkan::buffer::{create_index_buffer, create_uniform_buffers, create_vertex_buffer};
-use crate::vulkan::command::{create_command_buffers, create_command_pools};
+use crate::vulkan::command::{
+    create_command_buffers, create_command_pools, create_image_command_pools,
+};
 use crate::vulkan::descriptor::{
     create_descriptor_pool, create_descriptor_set_layout, create_descriptor_sets,
 };
@@ -34,7 +36,7 @@ use crate::vulkan::instance::{VALIDATION_ENABLED, create_instance};
 use crate::vulkan::pipeline::create_pipeline;
 use crate::vulkan::render_pass::create_render_pass;
 use crate::vulkan::swapchain::{create_swapchain, create_swapchain_image_views};
-use crate::vulkan::sync::create_sync_objects;
+use crate::vulkan::sync::{create_swapchain_sync_objects, create_sync_objects};
 use crate::vulkan::texture::{
     create_texture_image, create_texture_image_view, create_texture_sampler, init_texture_path,
 };
@@ -81,6 +83,7 @@ impl App {
         create_descriptor_set_layout(&device, &mut data)?;
         create_pipeline(&device, &mut data)?;
         create_command_pools(&instance, &device, &mut data)?;
+        create_image_command_pools(&instance, &device, &mut data)?;
         create_color_objects(&instance, &device, &mut data)?;
         create_depth_objects(&instance, &device, &mut data)?;
         create_framebuffers(&device, &mut data)?;
@@ -95,6 +98,7 @@ impl App {
         create_descriptor_sets(&device, &mut data)?;
         create_command_buffers(&device, &mut data)?;
         create_sync_objects(&device, &mut data)?;
+        create_swapchain_sync_objects(&device, &mut data)?;
 
         Ok(Self {
             entry,
@@ -126,25 +130,18 @@ impl App {
         create_uniform_buffers(&self.instance, &self.device, &mut self.data)?;
         create_descriptor_pool(&self.device, &mut self.data)?;
         create_descriptor_sets(&self.device, &mut self.data)?;
+        create_image_command_pools(&self.instance, &self.device, &mut self.data)?;
         create_command_buffers(&self.device, &mut self.data)?;
-        self.data
-            .images_in_flight
-            .resize(self.data.swapchain_images.len(), vk::Fence::null());
+        create_swapchain_sync_objects(&self.device, &mut self.data)?;
         Ok(())
     }
 
     /// Destroys our Vulkan app.
     pub unsafe fn destroy(&mut self) {
-        // ─── BUG : Must wait semaphore to be disregarded ───────────────
         self.device.device_wait_idle().unwrap();
-        // ───
         self.device.destroy_buffer(self.data.index_buffer, None);
         self.device.free_memory(self.data.index_buffer_memory, None);
         self.destroy_swapchain();
-        self.data
-            .command_pools
-            .iter()
-            .for_each(|p| self.device.destroy_command_pool(*p, None));
         self.device.destroy_sampler(self.data.texture_sampler, None);
         self.device
             .destroy_image_view(self.data.texture_image_view, None);
@@ -161,10 +158,6 @@ impl App {
             .in_flight_fences
             .iter()
             .for_each(|f| self.device.destroy_fence(*f, None));
-        self.data
-            .render_finished_semaphores
-            .iter()
-            .for_each(|s| self.device.destroy_semaphore(*s, None));
         self.data
             .image_available_semaphores
             .iter()
@@ -214,5 +207,18 @@ impl App {
             .iter()
             .for_each(|v| self.device.destroy_image_view(*v, None));
         self.device.destroy_swapchain_khr(self.data.swapchain, None);
+        self.data
+            .command_pools
+            .iter()
+            .for_each(|p| self.device.destroy_command_pool(*p, None));
+        self.data.command_pools.clear();
+        self.data.command_buffers.clear();
+        self.data.secondary_command_buffers.clear();
+
+        self.data
+            .render_finished_semaphores
+            .iter()
+            .for_each(|s| self.device.destroy_semaphore(*s, None));
+        self.data.render_finished_semaphores.clear();
     }
 }
