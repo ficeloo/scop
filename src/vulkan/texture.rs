@@ -41,8 +41,12 @@ pub unsafe fn create_texture_image(
     let size = image.size;
     let (width, height) = (image.width, image.height);
 
-    if width != 1024 || height != 1024 || pixels.len() != (width * height * 4) as usize {
-        panic!("Invalid texture image.");
+    let expected = (width * height * 4) as usize;
+    if pixels.len() != expected {
+        return Err(anyhow!(
+            "Invalid texture image: expected {expected} bytes for {width}x{height} RGBA, found {}",
+            pixels.len()
+        ));
     }
 
     data.mip_levels = (width.max(height) as f32).log2().floor() as u32 + 1;
