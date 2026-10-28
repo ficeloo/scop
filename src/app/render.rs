@@ -3,6 +3,7 @@ use std::ptr::slice_from_raw_parts;
 
 // NOTE: From the STD Lib to copy memory of the vertex list to the mapped memory
 use std::ptr::copy_nonoverlapping as memcpy;
+use std::time::Instant;
 
 use anyhow::{Result, anyhow};
 use vulkanalia::prelude::v1_0::*;
@@ -18,6 +19,9 @@ use crate::vulkan::buffer::{UniformBufferObject, create_index_buffer, create_ver
 use crate::vulkan::descriptor::{create_descriptor_pool, create_descriptor_sets};
 use crate::vulkan::sync::MAX_FRAMES_IN_FLIGHT;
 use crate::vulkan::texture::{create_texture_image, create_texture_image_view};
+
+//
+const MESH_VIEW_SPEED: f32 = 5.0;
 
 // ── Render ────────────────────────────────────────────────────────────────────
 
@@ -101,6 +105,15 @@ impl App {
         }
 
         self.frame = (self.frame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+        let dt = self.last_frame_time.elapsed().as_secs_f32();
+        self.last_frame_time = Instant::now();
+        if self.mesh_view {
+            self.mesh_view_value += MESH_VIEW_SPEED * dt;
+        } else {
+            self.mesh_view_value -= MESH_VIEW_SPEED * dt;
+        };
+        self.mesh_view_value = self.mesh_view_value.clamp(0.0, 1.0);
 
         Ok(())
     }
@@ -232,7 +245,7 @@ impl App {
         let opacity = (model_index + 1) as f32;
         let opacity_bytes = &opacity.to_ne_bytes()[..];
 
-        let mesh_view: f32 = if self.mesh_view { 1.0 } else { 0.0 };
+        let mesh_view: f32 = self.mesh_view_value;
         let mesh_view_bytes = &mesh_view.to_ne_bytes()[..];
 
         let info = vk::CommandBufferBeginInfo::builder()

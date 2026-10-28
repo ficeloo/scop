@@ -57,7 +57,9 @@ pub struct App {
     pub new_model: bool,
     pub new_texture: bool,
     pub mesh_view: bool,
+    mesh_view_value: f32,
     start: Instant,
+    last_frame_time: Instant,
     models: usize,
 }
 
@@ -104,7 +106,9 @@ impl App {
             new_model: false,
             new_texture: false,
             mesh_view: false,
+            mesh_view_value: 0.0,
             start: Instant::now(),
+            last_frame_time: Instant::now(),
             models: 1,
         })
     }
