@@ -69,8 +69,6 @@ impl App {
         let wait_semaphores = &[self.data.image_available_semaphores[self.frame]];
         let wait_stages = &[vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT];
         let command_buffers = &[self.data.command_buffers[image_index]];
-        // ── BUG: Fix : Mauvaise indexation de la swapchain ────────
-        // ── Before -> ...semaphore[self.frame] ────────
         let signal_semaphores = &[self.data.render_finished_semaphores[image_index]];
         let submit_info = vk::SubmitInfo::builder()
             .wait_semaphores(wait_semaphores)
