@@ -11,6 +11,7 @@ use crate::obj::{self, FaceVertex, ObjModel};
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const TARGET_SIZE: f32 = 1.50;
+const TEXTURE_ZOOM: f32 = 1.0;
 
 // ── Vertex Data ─────────────────────────────────────────────────────────────────
 
@@ -66,14 +67,28 @@ impl Vertex {
 
 // ── Model Loading ─────────────────────────────────────────────────────────────────
 
-fn build_vertex(models: &ObjModel, fv: &FaceVertex, center: [f32; 3], facteur: f32) -> Vertex {
+fn build_vertex(
+    models: &ObjModel,
+    fv: &FaceVertex,
+    center: [f32; 3],
+    facteur: f32,
+    min: [f32; 3],
+    inv_etendu: [f32; 3],
+    tex_axe: (usize, usize),
+) -> Vertex {
     let model_pos = models.positions[fv.position_index];
     let tex_coord = match fv.tex_coord_index {
         Some(i) => {
             let model_vert = models.tex_coords[i];
             vec2(model_vert[0], 1.0 - model_vert[1])
         }
-        None => vec2(0.0, 0.0),
+        None => {
+            let (y, x) = tex_axe;
+            vec2(
+                (model_pos[x] - min[x]) * inv_etendu[x] * TEXTURE_ZOOM,
+                (1.0 - model_pos[y] - min[y]) * inv_etendu[y] * TEXTURE_ZOOM,
+            )
+        }
     };
 
     Vertex {
@@ -93,7 +108,15 @@ pub fn load_model(data: &mut AppData) -> Result<()> {
     let (min, max) = obj::compute_bounding_box(&model.positions);
     let center = obj::compute_centroid(&model.positions);
     let etendu: [f32; 3] = [max[0] - min[0], max[1] - min[1], max[2] - min[2]];
+    let inv_etendu: [f32; 3] =
+        etendu.map(|ampl| if ampl > f32::EPSILON { 1.0 / ampl } else { 0.0 });
     let etendu_max = etendu[0].max(etendu[1]).max(etendu[2]);
+    let tex_axe = etendu
+        .iter()
+        .enumerate()
+        .min_by(|(_, x), (_, y)| x.total_cmp(y))
+        .map(|(i, _)| ((i + 1) % 3, (i + 2) % 3))
+        .unwrap_or((1, 2));
     let facteur: f32 = if etendu_max > f32::EPSILON {
         TARGET_SIZE / etendu_max
     } else {
@@ -107,7 +130,7 @@ pub fn load_model(data: &mut AppData) -> Result<()> {
             if let Some(i) = unique_vertices.get(fv) {
                 data.indices.push(*i as u32);
             } else {
-                let vertex = build_vertex(&model, fv, center, facteur);
+                let vertex = build_vertex(&model, fv, center, facteur, min, inv_etendu, tex_axe);
                 let index = data.vertices.len();
                 unique_vertices.insert(fv, index);
                 data.vertices.push(vertex);
