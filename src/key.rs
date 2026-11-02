@@ -9,6 +9,7 @@ pub enum Signal {
     Exit,
     ReloadModel,
     ReloadTexture,
+    TextureAxe(usize),
     ToggleMeshView,
 }
 
@@ -56,6 +57,9 @@ pub fn handle_input(input: PhysicalKey, data: &mut AppData) -> Result<Signal> {
         PhysicalKey::Code(KeyCode::ArrowLeft) => change_texture_index(data, false),
         PhysicalKey::Code(KeyCode::ArrowRight) => change_texture_index(data, true),
         PhysicalKey::Code(KeyCode::KeyM) => toggle_mesh_view(),
+        PhysicalKey::Code(KeyCode::KeyJ) => Ok(Signal::TextureAxe(0)),
+        PhysicalKey::Code(KeyCode::KeyK) => Ok(Signal::TextureAxe(1)),
+        PhysicalKey::Code(KeyCode::KeyL) => Ok(Signal::TextureAxe(2)),
         PhysicalKey::Code(KeyCode::Escape) => Ok(Signal::Exit),
         _ => Ok(Signal::Nothing),
     }

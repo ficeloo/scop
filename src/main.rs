@@ -74,16 +74,15 @@ fn main() -> Result<()> {
                     if event.state == ElementState::Pressed =>
                 {
                     match handle_input(event.physical_key, &mut app.data) {
-                        Ok(Signal::ReloadModel) => app.new_model = true,
-                        Ok(Signal::ReloadTexture) => {
-                            if !app.mesh_view {
-                                app.new_texture = true;
-                            }
+                        Ok(Signal::ReloadModel) => reload_model(&mut app),
+                        Ok(Signal::ReloadTexture) => reload_texture(&mut app),
+                        Ok(Signal::TextureAxe(axe)) => {
+                            app.data.texture_axe = axe;
+                            reload_model(&mut app);
                         }
                         Ok(Signal::ToggleMeshView) => app.mesh_view = !app.mesh_view,
-                        Ok(Signal::Exit) => {
-                            exit_app(&mut app, elwt);
-                        }
+                        Ok(Signal::Exit) => exit_app(&mut app, elwt),
+
                         Err(e) => {
                             error!("Error has ocurred while operating input {e}");
                         }
@@ -97,6 +96,18 @@ fn main() -> Result<()> {
     })?;
 
     Ok(())
+}
+
+fn reload_texture(app: &mut App) {
+    if !app.mesh_view {
+        app.new_texture = true;
+    }
+}
+
+fn reload_model(app: &mut App) {
+    if !app.mesh_view {
+        app.new_model = true;
+    }
 }
 
 fn exit_app(app: &mut App, elwt: &EventLoopWindowTarget<()>) {

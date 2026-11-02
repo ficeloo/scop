@@ -57,4 +57,5 @@ pub struct AppData {
     pub image_path: PathBuf,
     pub texture_path_vec: Vec<PathBuf>,
     pub texture_path_index: usize,
+    pub texture_axe: usize,
 }

@@ -115,7 +115,7 @@ pub fn load_model(data: &mut AppData) -> Result<()> {
         .iter()
         .enumerate()
         .min_by(|(_, x), (_, y)| x.total_cmp(y))
-        .map(|(i, _)| ((i + 1) % 3, (i + 2) % 3))
+        .map(|(i, _)| ((i + data.texture_axe) % 3, (i + 1 + data.texture_axe) % 3))
         .unwrap_or((1, 2));
     let facteur: f32 = if etendu_max > f32::EPSILON {
         TARGET_SIZE / etendu_max
