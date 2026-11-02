@@ -11,6 +11,7 @@ pub enum Signal {
     ReloadTexture,
     TextureAxe(usize),
     ToggleMeshView,
+    UpdateAngleSpeed,
 }
 
 fn change_texture_index(data: &mut AppData, direction: bool) -> Result<Signal> {
@@ -60,6 +61,7 @@ pub fn handle_input(input: PhysicalKey, data: &mut AppData) -> Result<Signal> {
         PhysicalKey::Code(KeyCode::KeyJ) => Ok(Signal::TextureAxe(0)),
         PhysicalKey::Code(KeyCode::KeyK) => Ok(Signal::TextureAxe(1)),
         PhysicalKey::Code(KeyCode::KeyL) => Ok(Signal::TextureAxe(2)),
+        PhysicalKey::Code(KeyCode::KeyO) => Ok(Signal::UpdateAngleSpeed)
         PhysicalKey::Code(KeyCode::Escape) => Ok(Signal::Exit),
         _ => Ok(Signal::Nothing),
     }

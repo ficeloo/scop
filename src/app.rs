@@ -21,6 +21,7 @@ use vulkanalia::vk::KhrSurfaceExtensionInstanceCommands;
 // NOTE: This trait was called `KhrSwapchainExtension` in versions of `vulkanalia` prior to `v0.31.0`.
 use vulkanalia::vk::KhrSwapchainExtensionDeviceCommands;
 
+use crate::math::Deg;
 use crate::model::load_model;
 use crate::vulkan::attachment::{create_color_objects, create_depth_objects};
 use crate::vulkan::buffer::{create_index_buffer, create_uniform_buffers, create_vertex_buffer};
@@ -63,6 +64,7 @@ pub struct App {
     start: Instant,
     last_frame_time: Instant,
     models: usize,
+    pub ang_vel: Deg,
 }
 
 impl App {
@@ -115,6 +117,7 @@ impl App {
             start: Instant::now(),
             last_frame_time: Instant::now(),
             models: 1,
+            ang_vel: Deg(0.0),
         })
     }
 
