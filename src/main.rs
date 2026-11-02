@@ -81,9 +81,8 @@ fn main() -> Result<()> {
                             reload_model(&mut app);
                         }
                         Ok(Signal::ToggleMeshView) => app.mesh_view = !app.mesh_view,
-                        Ok(Signal::UpdateAngleSpeed(speed)) => {
-                            app.ang_vel += speed % 360.0;
-                        }
+                        Ok(Signal::UpdateAngleSpeed(speed)) => app.ang_vel += speed % 360.0,
+                        Ok(Signal::StopRotation) => app.ang_vel = 0.0,
                         Ok(Signal::Exit) => exit_app(&mut app, elwt),
 
                         Err(e) => {
