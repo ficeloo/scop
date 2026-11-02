@@ -64,7 +64,8 @@ pub struct App {
     start: Instant,
     last_frame_time: Instant,
     models: usize,
-    pub ang_vel: Deg,
+    pub ang_vel: f32,
+    curr_angle: f32,
 }
 
 impl App {
@@ -112,12 +113,13 @@ impl App {
             resized: false,
             new_model: false,
             new_texture: false,
-            mesh_view: false,
+            mesh_view: true,
             mesh_view_value: 0.0,
             start: Instant::now(),
             last_frame_time: Instant::now(),
             models: 1,
-            ang_vel: Deg(0.0),
+            ang_vel: 0.0,
+            curr_angle: 303.0,
         })
     }
 

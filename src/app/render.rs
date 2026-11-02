@@ -108,6 +108,7 @@ impl App {
         self.frame = (self.frame + 1) % MAX_FRAMES_IN_FLIGHT;
 
         let dt = self.last_frame_time.elapsed().as_secs_f32();
+        self.curr_angle += self.ang_vel * dt;
         self.last_frame_time = Instant::now();
         if self.mesh_view {
             self.mesh_view_value += MESH_VIEW_SPEED * dt;
@@ -227,10 +228,8 @@ impl App {
 
         let command_buffer = command_buffers[model_index];
 
-        let time = self.start.elapsed().as_secs_f32();
-
         let model = Mat4::from_translation(vec3(0.0, 0.0, 0.0))
-            * Mat4::from_axis_angle(vec3(0.0, 0.0, 1.0), self.ang_vel * time);
+            * Mat4::from_axis_angle(vec3(0.0, 0.0, 1.0), Deg(self.curr_angle));
 
         let model_bytes =
             &*slice_from_raw_parts(&model as *const Mat4 as *const u8, size_of::<Mat4>());
