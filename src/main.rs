@@ -10,7 +10,7 @@ use winit::dpi::LogicalSize;
 use winit::event::ElementState;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::{EventLoop, EventLoopWindowTarget};
-use winit::keyboard::PhysicalKey;
+use winit::keyboard::{KeyCode, PhysicalKey};
 use winit::window::WindowBuilder;
 
 use anyhow::Result;
@@ -28,6 +28,9 @@ mod model;
 mod obj;
 mod ppm;
 mod vulkan;
+
+const BASE_SPEED: f32 = 1.0;
+const SPRINT_SPEED: f32 = 2.0;
 
 // ── Entry Point ───────────────────────────────────────────────────────────────
 
@@ -81,6 +84,14 @@ fn main() -> Result<()> {
                             ElementState::Pressed => app.pressed_keys.insert(code),
                             ElementState::Released => app.pressed_keys.remove(&code),
                         };
+                        return;
+                    }
+
+                    if code == KeyCode::ShiftLeft {
+                        match event.state {
+                            ElementState::Pressed => app.lin_vel = SPRINT_SPEED,
+                            ElementState::Released => app.lin_vel = BASE_SPEED,
+                        }
                         return;
                     }
 
