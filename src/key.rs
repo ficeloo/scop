@@ -15,6 +15,9 @@ pub enum Signal {
     ToggleMeshView,
     UpdateAngleSpeed(f32),
     StopRotation,
+    // UpdateMoveSpeed(f32),
+    // MoveModel(),
+    // ResetPosition,
 }
 
 fn change_texture_index(data: &mut AppData, direction: bool) -> Result<Signal> {
@@ -64,8 +67,8 @@ pub fn handle_input(input: PhysicalKey, data: &mut AppData) -> Result<Signal> {
         PhysicalKey::Code(KeyCode::KeyJ) => Ok(Signal::TextureAxe(0)),
         PhysicalKey::Code(KeyCode::KeyK) => Ok(Signal::TextureAxe(1)),
         PhysicalKey::Code(KeyCode::KeyL) => Ok(Signal::TextureAxe(2)),
-        PhysicalKey::Code(KeyCode::KeyI) => Ok(Signal::UpdateAngleSpeed(SPEED)),
-        PhysicalKey::Code(KeyCode::KeyO) => Ok(Signal::UpdateAngleSpeed(-SPEED)),
+        PhysicalKey::Code(KeyCode::KeyO) => Ok(Signal::UpdateAngleSpeed(SPEED)),
+        PhysicalKey::Code(KeyCode::KeyI) => Ok(Signal::UpdateAngleSpeed(-SPEED)),
         PhysicalKey::Code(KeyCode::KeyP) => Ok(Signal::StopRotation),
         PhysicalKey::Code(KeyCode::Escape) => Ok(Signal::Exit),
         _ => Ok(Signal::Nothing),
