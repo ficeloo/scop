@@ -1,6 +1,5 @@
 use anyhow::Result;
 use winit::keyboard::KeyCode;
-use winit::keyboard::PhysicalKey;
 
 use crate::app::AppData;
 use crate::math::{Vector3, vec3};
