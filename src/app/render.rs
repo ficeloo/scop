@@ -13,7 +13,8 @@ use winit::window::Window;
 use vulkanalia::vk::KhrSwapchainExtensionDeviceCommands;
 
 use super::App;
-use crate::math::{self, Deg, Mat4, point3, vec3};
+use crate::key::move_model;
+use crate::math::{self, Deg, Mat4, Point3, Vector3, camera_basis, point3, vec3};
 use crate::model::load_model;
 use crate::vulkan::buffer::{UniformBufferObject, create_index_buffer, create_vertex_buffer};
 use crate::vulkan::descriptor::{create_descriptor_pool, create_descriptor_sets};
@@ -22,6 +23,9 @@ use crate::vulkan::texture::{create_texture_image, create_texture_image_view};
 
 //
 const MESH_VIEW_SPEED: f32 = 5.0;
+const EYE: Point3 = point3(3.0, 0.0, 1.0);
+const CENTER: Point3 = point3(0.0, 0.0, 0.0);
+const UP: Vector3 = vec3(0.0, 0.0, 1.0);
 
 // ── Render ────────────────────────────────────────────────────────────────────
 
@@ -109,6 +113,16 @@ impl App {
 
         let dt = self.last_frame_time.elapsed().as_secs_f32();
         self.curr_angle += self.ang_vel * dt;
+        let (f, s, u) = camera_basis(CENTER - EYE, UP);
+        self.direction = self
+            .pressed_keys
+            .iter()
+            .filter_map(|&key| move_model(key))
+            .fold(vec3(0.0, 0.0, 0.0), |acc, vec| acc + vec);
+
+        let world_dir =
+            (f * self.direction.x + s * self.direction.y + u * self.direction.z).normalize();
+        self.curr_position += world_dir * self.lin_vel * dt;
         self.last_frame_time = Instant::now();
         if self.mesh_view {
             self.mesh_view_value += MESH_VIEW_SPEED * dt;
@@ -228,7 +242,7 @@ impl App {
 
         let command_buffer = command_buffers[model_index];
 
-        let model = Mat4::from_translation(vec3(0.0, 0.0, 0.0))
+        let model = Mat4::from_translation(self.curr_position)
             * Mat4::from_axis_angle(vec3(0.0, 0.0, 1.0), Deg(self.curr_angle));
 
         let model_bytes =
@@ -301,11 +315,7 @@ impl App {
     }
 
     unsafe fn update_uniform_buffer(&self, image_index: usize) -> Result<()> {
-        let view = Mat4::look_at_rh(
-            point3(3.0, 2.0, 1.5),
-            point3(0.0, 0.0, 0.0),
-            vec3(0.0, 0.0, 1.0),
-        );
+        let view = Mat4::look_at_rh(EYE, CENTER, UP);
 
         let correction = Mat4::new(
             1.0,
