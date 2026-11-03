@@ -51,7 +51,7 @@ pub const fn vec2(x: f32, y: f32) -> Vector2 {
 // ── Vector 3 ─────────────────────────────────────────────────────────────────
 
 #[repr(C)]
-#[derive(Copy, Clone, Debug)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub struct Vector3 {
     pub x: f32,
     pub y: f32,
@@ -59,6 +59,13 @@ pub struct Vector3 {
 }
 
 impl Vector3 {
+    pub fn zero() -> Vector3 {
+        Vector3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }
+    }
     pub fn magnitude(&self) -> f32 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
@@ -87,6 +94,10 @@ impl Vector3 {
             y: self.z * rhs.x - self.x * rhs.z,
             z: self.x * rhs.y - self.y * rhs.x,
         }
+    }
+
+    pub fn is_zero(&self) -> bool {
+        *self == Vector3::zero()
     }
 }
 
@@ -215,6 +226,15 @@ impl Matrix4 {
             z: c2,
             w: c3,
         }
+    }
+
+    pub const fn identity() -> Matrix4 {
+        Matrix4::from_cols(
+            vec4(1.0, 0.0, 0.0, 0.0),
+            vec4(0.0, 1.0, 0.0, 0.0),
+            vec4(0.0, 0.0, 1.0, 0.0),
+            vec4(0.0, 0.0, 0.0, 1.0),
+        )
     }
 
     pub fn from_translation(v: Vector3) -> Matrix4 {
