@@ -10,6 +10,7 @@ use winit::dpi::LogicalSize;
 use winit::event::ElementState;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::{EventLoop, EventLoopWindowTarget};
+use winit::keyboard::PhysicalKey;
 use winit::window::WindowBuilder;
 
 use anyhow::Result;
@@ -70,33 +71,41 @@ fn main() -> Result<()> {
                     exit_app(&mut app, elwt);
                 }
 
-                WindowEvent::KeyboardInput { event, .. }
-                    if event.state == ElementState::Pressed =>
-                {
-                    match handle_input(event.physical_key, &mut app.data) {
-                        Ok(Signal::ReloadModel) => reload_model(&mut app),
-                        Ok(Signal::ReloadTexture) => reload_texture(&mut app),
-                        Ok(Signal::TextureAxe(axe)) => {
-                            app.data.texture_axe = axe;
-                            reload_model(&mut app);
-                        }
-                        Ok(Signal::ToggleMeshView) => app.mesh_view = !app.mesh_view,
-                        Ok(Signal::UpdateAngleSpeed(speed)) => {
-                            app.ang_vel += speed;
-                            if app.ang_vel > 720.0 {
-                                app.ang_vel = 720.0;
-                            } else if app.ang_vel < -720.0 {
-                                app.ang_vel = -720.0
-                            }
-                        }
-                        Ok(Signal::StopRotation) => app.ang_vel = 0.0,
-                        Ok(Signal::Exit) => exit_app(&mut app, elwt),
-
-                        Err(e) => {
-                            error!("Error has ocurred while operating input {e}");
-                        }
-                        Ok(Signal::Nothing) => {}
+                WindowEvent::KeyboardInput { event, .. } => {
+                    let PhysicalKey::Code(code) = event.physical_key else {
+                        return;
                     };
+
+                    if move_model(code).is_some() {
+                        match event.state {
+                            ElementState::Pressed => app.pressed_keys.insert(code),
+                            ElementState::Released => app.pressed_keys.remove(&code),
+                        };
+                        return;
+                    }
+
+                    if event.state == ElementState::Pressed && !event.repeat {
+                        match handle_input(event.physical_key, &mut app.data) {
+                            Ok(Signal::ReloadModel) => reload_model(&mut app),
+                            Ok(Signal::ReloadTexture) => reload_texture(&mut app),
+                            Ok(Signal::TextureAxe(axe)) => {
+                                app.data.texture_axe = axe;
+                                reload_model(&mut app);
+                            }
+                            Ok(Signal::ToggleMeshView) => app.mesh_view = !app.mesh_view,
+                            Ok(Signal::UpdateAngleSpeed(speed)) => {
+                                app.ang_vel += speed;
+                                app.ang_vel = app.ang_vel.clamp(-720.0, 720.0);
+                            }
+                            Ok(Signal::StopRotation) => app.ang_vel = 0.0,
+                            Ok(Signal::Exit) => exit_app(&mut app, elwt),
+
+                            Err(e) => {
+                                error!("Error has ocurred while operating input {e}");
+                            }
+                            Ok(Signal::Nothing) => {}
+                        }
+                    }
                 }
                 _ => {}
             },
@@ -114,9 +123,7 @@ fn reload_texture(app: &mut App) {
 }
 
 fn reload_model(app: &mut App) {
-    if !app.mesh_view {
-        app.new_model = true;
-    }
+    app.new_model = true;
 }
 
 fn exit_app(app: &mut App, elwt: &EventLoopWindowTarget<()>) {
