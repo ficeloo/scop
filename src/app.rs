@@ -23,7 +23,7 @@ use vulkanalia::vk::KhrSurfaceExtensionInstanceCommands;
 // NOTE: This trait was called `KhrSwapchainExtension` in versions of `vulkanalia` prior to `v0.31.0`.
 use vulkanalia::vk::KhrSwapchainExtensionDeviceCommands;
 
-use crate::math::{Vector3, vec3};
+use crate::math::{Matrix4, Vector3, vec3};
 use crate::model::load_model;
 use crate::vulkan::attachment::{create_color_objects, create_depth_objects};
 use crate::vulkan::buffer::{create_index_buffer, create_uniform_buffers, create_vertex_buffer};
@@ -66,12 +66,13 @@ pub struct App {
     start: Instant,
     last_frame_time: Instant,
     models: usize,
+    pub pressed_keys: HashSet<KeyCode>,
     pub ang_vel: f32,
     curr_angle: f32,
     pub lin_vel: f32,
     pub direction: Vector3,
     curr_position: Vector3,
-    pub pressed_keys: HashSet<KeyCode>,
+    orientation: Matrix4,
 }
 
 impl App {
@@ -130,6 +131,7 @@ impl App {
             direction: vec3(0.0, 0.0, 0.0),
             curr_position: vec3(0.0, 0.0, 0.0),
             pressed_keys: HashSet::new(),
+            orientation: Matrix4::identity(),
         })
     }
 
