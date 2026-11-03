@@ -7,6 +7,33 @@ pub type Vec2 = Vector2;
 pub type Vec3 = Vector3;
 pub type Mat4 = Matrix4;
 
+// ── Point 2 ─────────────────────────────────────────────────────────────────
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct Point2 {
+    pub x: f32,
+    pub y: f32,
+}
+
+impl Sub<Point2> for Point2 {
+    type Output = Vector2;
+
+    fn sub(self, rhs: Point2) -> Self::Output {
+        vec2(self.x - rhs.x, self.y - rhs.y)
+    }
+}
+
+impl Point2 {
+    fn dot(&self, rhs: Vector2) -> f32 {
+        self.x * rhs.x + self.y * rhs.y
+    }
+}
+
+pub const fn point2(x: f32, y: f32) -> Point2 {
+    Point2 { x, y }
+}
+
 // ── Point 3 ─────────────────────────────────────────────────────────────────
 
 #[repr(C)]
@@ -101,6 +128,29 @@ impl Vector3 {
     }
 }
 
+impl Index<usize> for Vector3 {
+    type Output = f32;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        match index {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _ => panic!("index out of bounds"),
+        }
+    }
+}
+
+impl IndexMut<usize> for Vector3 {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        match index {
+            0 => &mut self.x,
+            1 => &mut self.y,
+            2 => &mut self.z,
+            _ => panic!("index out of bounds"),
+        }
+    }
+}
 impl Add<Vector3> for Vector3 {
     type Output = Vector3;
     fn add(self, rhs: Vector3) -> Vector3 {

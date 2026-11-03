@@ -1,7 +1,9 @@
 use anyhow::{Context, Result, anyhow};
-use std::fs::read_to_string;
 use std::path::PathBuf;
+use std::{fs::read_to_string, ops::RemAssign};
 use thiserror::Error;
+
+use crate::math::{Point2, Vec2, point2};
 
 #[derive(Clone, Debug, Default)]
 pub struct ObjModel {
@@ -86,7 +88,9 @@ fn parse_obj_str(content: &str) -> Result<ObjModel> {
                     .collect::<Result<Vec<_>>>()
                     .with_context(ctx)?;
 
-                model.faces.extend(triangulate_face(&resolved));
+                model
+                    .faces
+                    .extend(triangulate_face(&resolved, &model.positions));
             }
             _ => {}
         }
@@ -197,16 +201,110 @@ fn parse_face_line(line: &str) -> Result<Vec<RawFaceVertex>> {
 
 // ── Triangulation ────────────────────────────────────────────────────────────
 
-fn triangulate_face(vertices: &[FaceVertex]) -> Vec<[FaceVertex; 3]> {
+fn triangulate_face(vertices: &[FaceVertex], positions: &[[f32; 3]]) -> Vec<[FaceVertex; 3]> {
+    if vertices.len() == 3 {
+        return vec![[vertices[0], vertices[1], vertices[2]]];
+    }
     if vertices.len() < 3 {
         return Vec::new();
     }
     let mut triangles: Vec<[FaceVertex; 3]> = Vec::with_capacity(vertices.len() - 2);
-    let first_vertice = vertices[0];
-    for i in 1..vertices.len() - 1 {
-        triangles.push([first_vertice, vertices[i], vertices[i + 1]]);
+    let face_points: Vec<[f32; 3]> = vertices
+        .iter()
+        .map(|x| positions[x.position_index])
+        .collect();
+    let points_2d = project_face_2d(&face_points);
+    let mut remaining: Vec<usize> = (0..vertices.len()).collect();
+
+    while remaining.len() > 3 {
+        let m = remaining.len();
+
+        let ear = (0..m).find(|&k| {
+            let prev = remaining[(k + m - 1) % m];
+            let curr = remaining[k];
+            let next = remaining[(k + 1) % m];
+            let (a, b, c) = (points_2d[prev], points_2d[curr], points_2d[next]);
+
+            is_convex(a, b, c)
+                && remaining.iter().all(|&i| {
+                    i == prev || i == curr || i == next || !is_in_triangle(points_2d[i], a, b, c)
+                })
+        });
+        match ear {
+            Some(k) => {
+                let prev = remaining[(k + m - 1) % m];
+                let next = remaining[(k + 1) % m];
+                triangles.push([vertices[prev], vertices[remaining[k]], vertices[next]]);
+                remaining.remove(k);
+            }
+            None => {
+                for i in 1..m - 1 {
+                    triangles.push([
+                        vertices[remaining[0]],
+                        vertices[remaining[i]],
+                        vertices[remaining[i + 1]],
+                    ]);
+                }
+                return triangles;
+            }
+        }
     }
+
+    triangles.push([
+        vertices[remaining[0]],
+        vertices[remaining[1]],
+        vertices[remaining[2]],
+    ]);
+
     triangles
+}
+
+fn project_face_2d(face_points: &[[f32; 3]]) -> Vec<Point2> {
+    let mut normal: [f32; 3] = [0.0, 0.0, 0.0];
+    let len = face_points.len();
+    let mut face_2d: Vec<Point2> = Vec::with_capacity(len);
+
+    for i in 0..len {
+        let current = face_points[i];
+        let next = face_points[(i + 1) % len];
+
+        normal[0] += (current[1] - next[1]) * (current[2] + next[2]);
+        normal[1] += (current[2] - next[2]) * (current[0] + next[0]);
+        normal[2] += (current[0] - next[0]) * (current[1] + next[1]);
+    }
+
+    let normal_axis = normal
+        .iter()
+        .enumerate()
+        .max_by(|(_, x), (_, y)| x.abs().total_cmp(&y.abs()))
+        .map(|(i, &r)| {
+            if r >= 0.0 {
+                ((i + 1) % 3, (i + 2) % 3)
+            } else {
+                ((i + 2) % 3, (i + 1) % 3)
+            }
+        })
+        .unwrap_or((1, 2));
+
+    let (x, y) = normal_axis;
+    for i in 0..len {
+        let current = face_points[i];
+        face_2d.push(point2(current[x], current[y]));
+    }
+
+    face_2d
+}
+
+fn is_in_triangle(p: Point2, a: Point2, b: Point2, c: Point2) -> bool {
+    cross_2d(p, b, c) >= 0.0 && cross_2d(a, p, c) >= 0.0 && cross_2d(a, b, p) >= 0.0
+}
+
+fn cross_2d(a: Point2, b: Point2, c: Point2) -> f32 {
+    (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+}
+
+fn is_convex(a: Point2, b: Point2, c: Point2) -> bool {
+    cross_2d(a, b, c) > 0.0
 }
 
 // ── Résolution des indices négatifs (relatifs) ──────────────────────────────
