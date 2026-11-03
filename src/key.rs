@@ -54,19 +54,19 @@ fn file_manager(data: &mut AppData) -> Result<Signal> {
     }
 }
 
-pub fn handle_input(input: PhysicalKey, data: &mut AppData) -> Result<Signal> {
+pub fn handle_input(input: KeyCode, data: &mut AppData) -> Result<Signal> {
     match input {
-        PhysicalKey::Code(KeyCode::Enter) => file_manager(data),
-        PhysicalKey::Code(KeyCode::ArrowLeft) => change_texture_index(data, false),
-        PhysicalKey::Code(KeyCode::ArrowRight) => change_texture_index(data, true),
-        PhysicalKey::Code(KeyCode::KeyM) => Ok(Signal::ToggleMeshView),
-        PhysicalKey::Code(KeyCode::KeyJ) => Ok(Signal::TextureAxe(0)),
-        PhysicalKey::Code(KeyCode::KeyK) => Ok(Signal::TextureAxe(1)),
-        PhysicalKey::Code(KeyCode::KeyL) => Ok(Signal::TextureAxe(2)),
-        PhysicalKey::Code(KeyCode::KeyO) => Ok(Signal::UpdateAngleSpeed(SPEED)),
-        PhysicalKey::Code(KeyCode::KeyI) => Ok(Signal::UpdateAngleSpeed(-SPEED)),
-        PhysicalKey::Code(KeyCode::KeyP) => Ok(Signal::StopRotation),
-        PhysicalKey::Code(KeyCode::Escape) => Ok(Signal::Exit),
+        KeyCode::Enter => file_manager(data),
+        KeyCode::ArrowLeft => change_texture_index(data, false),
+        KeyCode::ArrowRight => change_texture_index(data, true),
+        KeyCode::KeyM => Ok(Signal::ToggleMeshView),
+        KeyCode::KeyJ => Ok(Signal::TextureAxe(0)),
+        KeyCode::KeyK => Ok(Signal::TextureAxe(1)),
+        KeyCode::KeyL => Ok(Signal::TextureAxe(2)),
+        KeyCode::KeyO => Ok(Signal::UpdateAngleSpeed(SPEED)),
+        KeyCode::KeyI => Ok(Signal::UpdateAngleSpeed(-SPEED)),
+        KeyCode::KeyP => Ok(Signal::StopRotation),
+        KeyCode::Escape => Ok(Signal::Exit),
         _ => Ok(Signal::Nothing),
     }
 }

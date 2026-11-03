@@ -96,7 +96,7 @@ fn main() -> Result<()> {
                     }
 
                     if event.state == ElementState::Pressed && !event.repeat {
-                        match handle_input(event.physical_key, &mut app.data) {
+                        match handle_input(code, &mut app.data) {
                             Ok(Signal::ReloadModel) => reload_model(&mut app),
                             Ok(Signal::ReloadTexture) => reload_texture(&mut app),
                             Ok(Signal::TextureAxe(axe)) => {
