@@ -54,16 +54,12 @@ fn file_manager(data: &mut AppData) -> Result<Signal> {
     }
 }
 
-fn toggle_mesh_view() -> Result<Signal> {
-    Ok(Signal::ToggleMeshView)
-}
-
 pub fn handle_input(input: PhysicalKey, data: &mut AppData) -> Result<Signal> {
     match input {
         PhysicalKey::Code(KeyCode::Enter) => file_manager(data),
         PhysicalKey::Code(KeyCode::ArrowLeft) => change_texture_index(data, false),
         PhysicalKey::Code(KeyCode::ArrowRight) => change_texture_index(data, true),
-        PhysicalKey::Code(KeyCode::KeyM) => toggle_mesh_view(),
+        PhysicalKey::Code(KeyCode::KeyM) => Ok(Signal::ToggleMeshView),
         PhysicalKey::Code(KeyCode::KeyJ) => Ok(Signal::TextureAxe(0)),
         PhysicalKey::Code(KeyCode::KeyK) => Ok(Signal::TextureAxe(1)),
         PhysicalKey::Code(KeyCode::KeyL) => Ok(Signal::TextureAxe(2)),
