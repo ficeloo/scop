@@ -57,18 +57,30 @@ pub fn handle_input(input: KeyCode, data: &mut AppData) -> Result<Signal> {
         KeyCode::ArrowLeft => change_texture_index(data, false),
         KeyCode::ArrowRight => change_texture_index(data, true),
         KeyCode::KeyM => Ok(Signal::ToggleMeshView),
-        KeyCode::KeyJ => Ok(Signal::TextureAxe(0)),
-        KeyCode::KeyK => Ok(Signal::TextureAxe(1)),
-        KeyCode::KeyL => Ok(Signal::TextureAxe(2)),
-        KeyCode::KeyO => Ok(Signal::UpdateAngleSpeed(SPEED)),
-        KeyCode::KeyI => Ok(Signal::UpdateAngleSpeed(-SPEED)),
-        KeyCode::KeyP => Ok(Signal::StopRotation),
+        KeyCode::Digit1 => Ok(Signal::TextureAxe(0)),
+        KeyCode::Digit2 => Ok(Signal::TextureAxe(1)),
+        KeyCode::Digit3 => Ok(Signal::TextureAxe(2)),
+        KeyCode::Equal => Ok(Signal::UpdateAngleSpeed(SPEED)),
+        KeyCode::Minus => Ok(Signal::UpdateAngleSpeed(-SPEED)),
+        KeyCode::Digit0 => Ok(Signal::StopRotation),
         KeyCode::Escape => Ok(Signal::Exit),
         _ => Ok(Signal::Nothing),
     }
 }
 
 pub fn move_model(input: KeyCode) -> Option<Vector3> {
+    match input {
+        KeyCode::KeyW => Some(vec3(-1.0, 0.0, 0.0)),
+        KeyCode::KeyS => Some(vec3(1.0, 0.0, 0.0)),
+        KeyCode::KeyD => Some(vec3(0.0, -1.0, 0.0)),
+        KeyCode::KeyA => Some(vec3(0.0, 1.0, 0.0)),
+        KeyCode::KeyQ => Some(vec3(0.0, 0.0, -1.0)),
+        KeyCode::KeyE => Some(vec3(0.0, 0.0, 1.0)),
+        _ => None,
+    }
+}
+
+pub fn rotate_model(input: KeyCode) -> Option<Vector3> {
     match input {
         KeyCode::KeyW => Some(vec3(-1.0, 0.0, 0.0)),
         KeyCode::KeyS => Some(vec3(1.0, 0.0, 0.0)),
