@@ -15,8 +15,6 @@ pub enum Signal {
     ToggleMeshView,
     UpdateAngleSpeed(f32),
     StopRotation,
-    // UpdateMoveSpeed(f32),
-    // ResetPosition,
 }
 
 fn change_texture_index(data: &mut AppData, direction: bool) -> Result<Signal> {
