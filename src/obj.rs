@@ -1,9 +1,9 @@
 use anyhow::{Context, Result, anyhow};
 use std::path::PathBuf;
-use std::{fs::read_to_string, ops::RemAssign};
+use std::fs::read_to_string;
 use thiserror::Error;
 
-use crate::math::{Point2, Vec2, point2};
+use crate::math::{Point2, point2};
 
 #[derive(Clone, Debug, Default)]
 pub struct ObjModel {
