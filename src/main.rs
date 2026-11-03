@@ -79,7 +79,7 @@ fn main() -> Result<()> {
                         return;
                     };
 
-                    if move_model(code).is_some() {
+                    if move_model(code).is_some() || rotate_model(code).is_some() {
                         match event.state {
                             ElementState::Pressed => app.pressed_keys.insert(code),
                             ElementState::Released => app.pressed_keys.remove(&code),
