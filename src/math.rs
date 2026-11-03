@@ -1,5 +1,5 @@
 use std::f32::consts::PI;
-use std::ops::{Div, Index, IndexMut, Mul, Sub};
+use std::ops::{Add, AddAssign, Div, Index, IndexMut, Mul, Sub};
 
 // ── Type ─────────────────────────────────────────────────────────────────
 
@@ -87,6 +87,35 @@ impl Vector3 {
             y: self.z * rhs.x - self.x * rhs.z,
             z: self.x * rhs.y - self.y * rhs.x,
         }
+    }
+}
+
+impl Add<Vector3> for Vector3 {
+    type Output = Vector3;
+    fn add(self, rhs: Vector3) -> Vector3 {
+        vec3(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
+    }
+}
+
+impl AddAssign<Vector3> for Vector3 {
+    fn add_assign(&mut self, rhs: Vector3) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z;
+    }
+}
+
+impl Add<f32> for Vector3 {
+    type Output = Vector3;
+    fn add(self, rhs: f32) -> Vector3 {
+        vec3(self.x + rhs, self.y + rhs, self.z + rhs)
+    }
+}
+
+impl Mul<f32> for Vector3 {
+    type Output = Vector3;
+    fn mul(self, rhs: f32) -> Vector3 {
+        vec3(self.x * rhs, self.y * rhs, self.z * rhs)
     }
 }
 
@@ -224,9 +253,7 @@ impl Matrix4 {
     }
 
     pub fn look_to_rh(eye: Point3, dir: Vector3, up: Vector3) -> Matrix4 {
-        let f = dir.normalize();
-        let s = f.cross(up).normalize();
-        let u = s.cross(f);
+        let (f, s, u) = camera_basis(dir, up);
 
         mat4(
             vec4(s.x, u.x, -f.x, 0.0),
@@ -458,4 +485,14 @@ pub fn perspective<A: Into<Rad>>(fovy: A, aspect: f32, near: f32, far: f32) -> M
         far,
     }
     .into()
+}
+
+// ── Helper Functions ─────────────────────────────────────────────────────────────────
+
+pub fn camera_basis(dir: Vector3, up: Vector3) -> (Vector3, Vector3, Vector3) {
+    let f = dir.normalize();
+    let s = f.cross(up).normalize();
+    let u = s.cross(f);
+
+    (f, s, u)
 }
