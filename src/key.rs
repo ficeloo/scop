@@ -82,12 +82,12 @@ pub fn move_model(input: KeyCode) -> Option<Vector3> {
 
 pub fn rotate_model(input: KeyCode) -> Option<Vector3> {
     match input {
-        KeyCode::KeyI => Some(vec3(-1.0, 0.0, 0.0)),
-        KeyCode::KeyK => Some(vec3(1.0, 0.0, 0.0)),
-        KeyCode::KeyJ => Some(vec3(0.0, 1.0, 0.0)),
-        KeyCode::KeyL => Some(vec3(0.0, -1.0, 0.0)),
-        KeyCode::KeyU => Some(vec3(0.0, 0.0, -1.0)),
-        KeyCode::KeyO => Some(vec3(0.0, 0.0, 1.0)),
+        KeyCode::KeyI => Some(vec3(0.0, 1.0, 0.0)),
+        KeyCode::KeyK => Some(vec3(0.0, -1.0, 0.0)),
+        KeyCode::KeyU => Some(vec3(1.0, 0.0, 0.0)),
+        KeyCode::KeyO => Some(vec3(-1.0, 0.0, 0.0)),
+        KeyCode::KeyJ => Some(vec3(0.0, 0.0, -1.0)),
+        KeyCode::KeyL => Some(vec3(0.0, 0.0, 1.0)),
         _ => None,
     }
 }
