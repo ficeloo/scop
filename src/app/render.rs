@@ -14,6 +14,8 @@ use vulkanalia::vk::KhrSwapchainExtensionDeviceCommands;
 
 use super::App;
 use crate::key::move_model;
+use crate::key::rotate_model;
+use crate::math::Matrix4;
 use crate::math::{self, Deg, Mat4, Point3, Vector3, camera_basis, point3, vec3};
 use crate::model::load_model;
 use crate::vulkan::buffer::{UniformBufferObject, create_index_buffer, create_vertex_buffer};
@@ -23,6 +25,7 @@ use crate::vulkan::texture::{create_texture_image, create_texture_image_view};
 
 //
 const MESH_VIEW_SPEED: f32 = 5.0;
+const ROTATING_SPEED: f32 = 50.0;
 const EYE: Point3 = point3(3.0, 0.0, 1.0);
 const CENTER: Point3 = point3(0.0, 0.0, 0.0);
 const UP: Vector3 = vec3(0.0, 0.0, 1.0);
@@ -123,6 +126,19 @@ impl App {
         let world_dir =
             (f * self.direction.x + s * self.direction.y + u * self.direction.z).normalize();
         self.curr_position += world_dir * self.lin_vel * dt;
+
+        let axe = self
+            .pressed_keys
+            .iter()
+            .filter_map(|&key| rotate_model(key))
+            .fold(vec3(0.0, 0.0, 0.0), |acc, vec| acc + vec)
+            .normalize();
+
+        if !axe.is_zero() {
+            self.orientation =
+                self.orientation * Matrix4::from_axis_angle(axe, Deg(ROTATING_SPEED * dt));
+        }
+
         self.last_frame_time = Instant::now();
         if self.mesh_view {
             self.mesh_view_value += MESH_VIEW_SPEED * dt;
@@ -243,6 +259,7 @@ impl App {
         let command_buffer = command_buffers[model_index];
 
         let model = Mat4::from_translation(self.curr_position)
+            * self.orientation
             * Mat4::from_axis_angle(vec3(0.0, 0.0, 1.0), Deg(self.curr_angle));
 
         let model_bytes =
