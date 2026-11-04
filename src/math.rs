@@ -151,6 +151,14 @@ impl IndexMut<usize> for Vector3 {
         }
     }
 }
+
+impl Sub<Vector3> for Vector3 {
+    type Output = Vector3;
+    fn sub(self, rhs: Vector3) -> Vector3 {
+        vec3(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z)
+    }
+}
+
 impl Add<Vector3> for Vector3 {
     type Output = Vector3;
     fn add(self, rhs: Vector3) -> Vector3 {
@@ -565,4 +573,19 @@ pub fn camera_basis(dir: Vector3, up: Vector3) -> (Vector3, Vector3, Vector3) {
     let u = s.cross(f);
 
     (f, s, u)
+}
+
+pub fn get_normal_axis_max(normal: [f32; 3]) -> (usize, usize) {
+    normal
+        .iter()
+        .enumerate()
+        .max_by(|(_, x), (_, y)| x.abs().total_cmp(&y.abs()))
+        .map(|(i, &r)| {
+            if r >= 0.0 {
+                ((i + 1) % 3, (i + 2) % 3)
+            } else {
+                ((i + 2) % 3, (i + 1) % 3)
+            }
+        })
+        .unwrap_or((1, 2))
 }
