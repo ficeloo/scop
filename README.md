@@ -33,8 +33,7 @@ Pour que ce soit digeste :
      - Quels mots-clés doivent y être (Rust, Vulkan, .obj, fait maison) ?
 -->
 
-![Python](https://shields.io)
-![Rust](https://img.shields.io/badge/Rust-edition%202024-orange?logo=rust)
+[![Rust](https://img.shields.io/badge/Rust-edition%202024-orange?logo=rust)](https://rust-lang.org/)
 ![Vulkan](https://img.shields.io/badge/API-Vulkan-AC162C?logo=vulkan)
 ![42](https://img.shields.io/badge/42-graphics%20branch-000000)
 
