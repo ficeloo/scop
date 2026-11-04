@@ -3,7 +3,6 @@ use winit::keyboard::KeyCode;
 
 use crate::app::AppData;
 use crate::math::{Vector3, vec3};
-use crate::reload_model;
 
 const SPEED: f32 = 15.0;
 
