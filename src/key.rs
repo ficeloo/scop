@@ -77,10 +77,10 @@ pub fn handle_input(input: KeyCode, data: &mut AppData) -> Result<Signal> {
 
 pub fn move_model(input: KeyCode) -> Option<Vector3> {
     match input {
-        KeyCode::KeyW => Some(vec3(-1.0, 0.0, 0.0)),
-        KeyCode::KeyS => Some(vec3(1.0, 0.0, 0.0)),
-        KeyCode::KeyD => Some(vec3(0.0, -1.0, 0.0)),
-        KeyCode::KeyA => Some(vec3(0.0, 1.0, 0.0)),
+        KeyCode::KeyW => Some(vec3(1.0, 0.0, 0.0)),
+        KeyCode::KeyS => Some(vec3(-1.0, 0.0, 0.0)),
+        KeyCode::KeyD => Some(vec3(0.0, 1.0, 0.0)),
+        KeyCode::KeyA => Some(vec3(0.0, -1.0, 0.0)),
         KeyCode::KeyQ => Some(vec3(0.0, 0.0, -1.0)),
         KeyCode::KeyE => Some(vec3(0.0, 0.0, 1.0)),
         _ => None,
