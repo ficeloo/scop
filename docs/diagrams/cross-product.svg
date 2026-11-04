@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="400" viewBox="0 0 860 400" role="img" aria-labelledby="title">
+<title id="title">Cross product and camera frame</title>
+<style>
+.card{fill:#f6f8fa;stroke:#d0d7de}
+.box{fill:#ffffff;stroke:#8c959f;stroke-width:1.2}
+.boxacc{fill:#ddf4ff;stroke:#0969da;stroke-width:1.2}
+.boxred{fill:#ffebe9;stroke:#cf222e;stroke-width:1.2}
+.boxgreen{fill:#dafbe1;stroke:#1a7f37;stroke-width:1.2}
+.lane{fill:#eaeef2;stroke:none}
+.faint{fill:#eaeef2;stroke:none}
+.g1{fill:#d0d7de} .g2{fill:#afb8c1} .g3{fill:#8c959f} .g4{fill:#6e7781}
+.fillacc{fill:#ddf4ff} .fillred{fill:#ffebe9} .fillgreen{fill:#dafbe1}
+text{font-family:-apple-system, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif;fill:#1f2328}
+.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', monospace}
+.b{font-weight:600}
+.t-text{fill:#1f2328}
+.s-text{stroke:#1f2328}
+.m-text{fill:#1f2328;stroke:none}
+.t-muted{fill:#59636e}
+.s-muted{stroke:#59636e}
+.m-muted{fill:#59636e;stroke:none}
+.t-acc{fill:#0969da}
+.s-acc{stroke:#0969da}
+.m-acc{fill:#0969da;stroke:none}
+.t-red{fill:#cf222e}
+.s-red{stroke:#cf222e}
+.m-red{fill:#cf222e;stroke:none}
+.t-green{fill:#1a7f37}
+.s-green{stroke:#1a7f37}
+.m-green{fill:#1a7f37;stroke:none}
+.t-x{fill:#cf222e}
+.s-x{stroke:#cf222e}
+.m-x{fill:#cf222e;stroke:none}
+.t-y{fill:#1a7f37}
+.s-y{stroke:#1a7f37}
+.m-y{fill:#1a7f37;stroke:none}
+.t-z{fill:#0969da}
+.s-z{stroke:#0969da}
+.m-z{fill:#0969da;stroke:none}
+.t-boxline{fill:#8c959f}
+.s-boxline{stroke:#8c959f}
+.m-boxline{fill:#8c959f;stroke:none}
+.t-inv{fill:#ffffff}
+.s-inv{stroke:#ffffff}
+.m-inv{fill:#ffffff;stroke:none}
+@media (prefers-color-scheme: dark) {
+.card{fill:#161b22;stroke:#30363d}
+.box{fill:#0d1117;stroke:#6e7681;stroke-width:1.2}
+.boxacc{fill:#0c2d6b;stroke:#4493f8;stroke-width:1.2}
+.boxred{fill:#4b1113;stroke:#f85149;stroke-width:1.2}
+.boxgreen{fill:#0f3d1c;stroke:#3fb950;stroke-width:1.2}
+.lane{fill:#21262d;stroke:none}
+.faint{fill:#21262d;stroke:none}
+.g1{fill:#30363d} .g2{fill:#484f58} .g3{fill:#6e7681} .g4{fill:#8b949e}
+.fillacc{fill:#0c2d6b} .fillred{fill:#4b1113} .fillgreen{fill:#0f3d1c}
+text{font-family:-apple-system, 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif;fill:#e6edf3}
+.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', monospace}
+.b{font-weight:600}
+.t-text{fill:#e6edf3}
+.s-text{stroke:#e6edf3}
+.m-text{fill:#e6edf3;stroke:none}
+.t-muted{fill:#9198a1}
+.s-muted{stroke:#9198a1}
+.m-muted{fill:#9198a1;stroke:none}
+.t-acc{fill:#4493f8}
+.s-acc{stroke:#4493f8}
+.m-acc{fill:#4493f8;stroke:none}
+.t-red{fill:#f85149}
+.s-red{stroke:#f85149}
+.m-red{fill:#f85149;stroke:none}
+.t-green{fill:#3fb950}
+.s-green{stroke:#3fb950}
+.m-green{fill:#3fb950;stroke:none}
+.t-x{fill:#f85149}
+.s-x{stroke:#f85149}
+.m-x{fill:#f85149;stroke:none}
+.t-y{fill:#3fb950}
+.s-y{stroke:#3fb950}
+.m-y{fill:#3fb950;stroke:none}
+.t-z{fill:#4493f8}
+.s-z{stroke:#4493f8}
+.m-z{fill:#4493f8;stroke:none}
+.t-boxline{fill:#6e7681}
+.s-boxline{stroke:#6e7681}
+.m-boxline{fill:#6e7681;stroke:none}
+.t-inv{fill:#0d1117}
+.s-inv{stroke:#0d1117}
+.m-inv{fill:#0d1117;stroke:none}
+}
+</style>
+<defs><marker id="ar-text" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-text"/></marker><marker id="ar-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-muted"/></marker><marker id="ar-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-acc"/></marker><marker id="ar-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-red"/></marker><marker id="ar-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-green"/></marker><marker id="ar-x" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-x"/></marker><marker id="ar-y" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-y"/></marker><marker id="ar-z" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-z"/></marker><marker id="ar-boxline" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-boxline"/></marker><marker id="ar-inv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="m-inv"/></marker></defs>
+<rect x="0.5" y="0.5" width="859" height="399" rx="12" class="card"/>
+<polygon points="190.0,240.0 145.4,278.7 282.4,282.2 327.0,243.5" fill="none" class="fillacc s-acc" stroke-width="1" stroke-linejoin="round"/>
+<line x1="190.0" y1="240.0" x2="145.4" y2="278.7" fill="none" class="s-text" stroke-width="2" marker-end="url(#ar-text)"/>
+<line x1="190.0" y1="240.0" x2="327.0" y2="243.5" fill="none" class="s-text" stroke-width="2" marker-end="url(#ar-text)"/>
+<line x1="190.0" y1="240.0" x2="190.0" y2="113.5" fill="none" class="s-acc" stroke-width="2" marker-end="url(#ar-acc)"/>
+<text x="131.4" y="284.7" font-size="15" text-anchor="end" class="t-text b" xml:space="preserve">a</text>
+<text x="339.0" y="247.5" font-size="15" text-anchor="start" class="t-text b" xml:space="preserve">b</text>
+<text x="200.0" y="117.5" font-size="15" text-anchor="start" class="t-acc b mono" xml:space="preserve">a × b</text>
+<text x="210.0" y="34.0" font-size="14.5" text-anchor="middle" class="t-text b" xml:space="preserve">Cross product</text>
+<text x="40.0" y="330.0" font-size="12.5" text-anchor="start" class="t-text" xml:space="preserve">• a × b is perpendicular to a and to b</text>
+<text x="40.0" y="346.9" font-size="12.5" text-anchor="start" class="t-text" xml:space="preserve">• its length = area of the blue parallelogram</text>
+<text x="40.0" y="363.8" font-size="12.5" text-anchor="start" class="t-text" xml:space="preserve">• order matters: b × a = −(a × b)</text>
+<text x="650.0" y="34.0" font-size="14.5" text-anchor="middle" class="t-text b" xml:space="preserve">Camera frame, side view</text>
+<line x1="500.0" y1="250.0" x2="793.0" y2="250.0" fill="none" class="s-x" stroke-width="1.4" marker-end="url(#ar-x)"/>
+<text x="801.0" y="254.0" font-size="13" text-anchor="start" class="t-x b" xml:space="preserve">x</text>
+<line x1="520.0" y1="270.0" x2="520.0" y2="89.0" fill="none" class="s-z" stroke-width="1.4" marker-end="url(#ar-z)"/>
+<text x="512.0" y="93.0" font-size="13" text-anchor="end" class="t-z b" xml:space="preserve">z (UP)</text>
+<circle cx="490" cy="280" r="8" fill="none" class="s-y" stroke-width="1.4"/>
+<line x1="485.0" y1="275.0" x2="495.0" y2="285.0" fill="none" class="s-y" stroke-width="1.4"/>
+<line x1="495.0" y1="275.0" x2="485.0" y2="285.0" fill="none" class="s-y" stroke-width="1.4"/>
+<text x="476.0" y="284.0" font-size="11.5" text-anchor="end" class="t-y" xml:space="preserve">y (into the page)</text>
+<line x1="730.0" y1="180.0" x2="520.0" y2="250.0" fill="none" class="s-muted" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="730.0" y1="180.0" x2="656.9" y2="204.3" fill="none" class="s-text" stroke-width="2.2" marker-end="url(#ar-text)"/>
+<text x="652.9" y="222.3" font-size="14" text-anchor="middle" class="t-text b mono" xml:space="preserve">f</text>
+<line x1="730.0" y1="180.0" x2="705.7" y2="106.9" fill="none" class="s-green" stroke-width="2.2" marker-end="url(#ar-green)"/>
+<text x="697.7" y="102.9" font-size="14" text-anchor="end" class="t-green b mono" xml:space="preserve">u</text>
+<circle cx="730" cy="180" r="9" fill="none" class="s-acc" stroke-width="1.6"/>
+<line x1="725.0" y1="175.0" x2="735.0" y2="185.0" fill="none" class="s-acc" stroke-width="1.6"/>
+<line x1="735.0" y1="175.0" x2="725.0" y2="185.0" fill="none" class="s-acc" stroke-width="1.6"/>
+<text x="744.0" y="170.0" font-size="12" text-anchor="start" class="t-text mono" xml:space="preserve">EYE (3, 0, 1)</text>
+<text x="744.0" y="202.0" font-size="11.5" text-anchor="start" class="t-acc" xml:space="preserve">s: into the page</text>
+<circle cx="520.0" cy="250.0" r="4" class="m-text"/>
+<text x="528.0" y="268.0" font-size="12" text-anchor="start" class="t-text mono" xml:space="preserve">CENTER (0, 0, 0)</text>
+<text x="460.0" y="330.0" font-size="12" text-anchor="start" class="t-text mono" xml:space="preserve">f = forward = normalize(CENTER − EYE)</text>
+<text x="460.0" y="346.2" font-size="12" text-anchor="start" class="t-text mono" xml:space="preserve">s = right   = normalize(f × UP)  = +y here</text>
+<text x="460.0" y="362.4" font-size="12" text-anchor="start" class="t-text mono" xml:space="preserve">u = up      = s × f   (already unit length)</text>
+</svg>
