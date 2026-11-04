@@ -1,39 +1,5 @@
 *This project has been created as part of the 42 curriculum by tcros.*
 
-<!-- TEMPORARY SECTION: START (delete everything down to "TEMPORARY SECTION: END" once fixed) -->
-
-## ⚠️ TEMPORARY: inconsistencies to fix
-
-Found while writing this README (commit `fca6c0a`). Nothing has been changed in the code.
-
-**Subject**
-
-- [ ] `Cargo.toml:11`: the `tobj` crate (an OBJ parser, forbidden by the subject) is still a dependency, but is not used anywhere in `src/`.
-- [ ] No command-line argument: the program always opens `DEFAULT_MODEL` (`src/app.rs:49`, `src/app.rs:86`). Check whether the subject asks for `./scop file.obj`.
-
-**Possible bugs**
-
-- [ ] `src/model.rs:89`: `(1.0 - model_pos[y] - min[y]) * inv_etendu[y]`. Probably meant `1.0 - (model_pos[y] - min[y]) * inv_etendu[y]`; with the `REPEAT` sampler, the current formula shifts the texture.
-- [ ] `src/vulkan/device.rs:190`: `geometry_shader(true)` is requested when the device is created, but not checked when the GPU is chosen (`src/vulkan/device.rs:83` checks only `sampler_anisotropy`). On a GPU without it, device creation fails instead of skipping that GPU.
-- [ ] `src/key.rs:75-76`: `A` moves along +right and `D` along −right of the camera. Looks inverted, check on screen. Same question for `W` (−forward, so towards the camera).
-- [ ] `src/key.rs` (`change_texture_index`) + `src/main.rs` (`reload_texture`): in grey view, `←`/`→` still change `texture_path_index` but the reload is skipped, so the texture shown no longer matches the index.
-- [ ] `src/math.rs:415-445`: `From<PerspectiveFov>` uses `assert!`, so a bad value (for example an aspect ratio of 0) panics instead of returning an error.
-
-**Leftovers from the tutorial**
-
-- [ ] `src/app/render.rs:232`: `update_secondary_command_buffer(image_index, 0)` uses `0` instead of `i` (no effect while `models = 1`).
-- [ ] `src/app/render.rs:273`: `opacity` is always `1.0` (one model).
-- [ ] `src/main.rs:44` and `src/vulkan/instance.rs:55`: window title and application name are still "Vulkan Tutorial".
-- [ ] `unwrap()` left in `src/ppm.rs:19`, `src/vulkan/pipeline.rs:142`, `src/app.rs:159`.
-
-**Tests**
-
-- [ ] No tests: `make test` runs nothing.
-- [ ] No test model with negative indices.
-- [ ] `impl Mul<Vector4> for Matrix4` (`src/math.rs:367`) is never called.
-
-<!-- TEMPORARY SECTION: END -->
-
 <!-- GUIDE DE RÉDACTION (à supprimer quand tout est écrit)
 
 Qui écrit quoi :
@@ -59,7 +25,6 @@ Pour que ce soit digeste :
 
 <div align="center">
 
-<!-- Bannière générée par docs/images/make_banner.py. Le SVG choisit sa palette claire ou sombre tout seul. -->
 <img src="docs/images/banner.svg" alt="Scop" width="900">
 
 <!-- TODO(Theo): ta phrase d'accroche, en gras, une seule phrase (**comme ceci**).
@@ -68,6 +33,7 @@ Pour que ce soit digeste :
      - Quels mots-clés doivent y être (Rust, Vulkan, .obj, fait maison) ?
 -->
 
+![Python](https://shields.io)
 ![Rust](https://img.shields.io/badge/Rust-edition%202024-orange?logo=rust)
 ![Vulkan](https://img.shields.io/badge/API-Vulkan-AC162C?logo=vulkan)
 ![42](https://img.shields.io/badge/42-graphics%20branch-000000)
