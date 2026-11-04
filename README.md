@@ -10,7 +10,6 @@ Found while writing this README (commit `fca6c0a`). Nothing has been changed in 
 
 - [ ] `Cargo.toml:11`: the `tobj` crate (an OBJ parser, forbidden by the subject) is still a dependency, but is not used anywhere in `src/`.
 - [ ] No command-line argument: the program always opens `DEFAULT_MODEL` (`src/app.rs:49`, `src/app.rs:86`). Check whether the subject asks for `./scop file.obj`.
-- [ ] Box mapping bonus not implemented: `src/model.rs` uses one planar projection for the whole model, and the deduplication key is the `FaceVertex` only (`src/model.rs:135`).
 
 **Possible bugs**
 
@@ -310,7 +309,8 @@ Keys are read by their **physical position**, named after a QWERTY layout. On an
 | --- | --- |
 | `M` | Grey view ↔ textured view. Scop starts in grey view. |
 | `←` / `→` | Previous / next texture from `resources/texture/` (textured view only) |
-| `1` / `2` / `3` | Change the projection axes of the generated texture coordinates |
+| `N` | Planar projection ↔ box mapping for the generated texture coordinates. Scop starts in box mode |
+| `1` / `2` / `3` | Change the projection axes of the generated texture coordinates (planar mode only) |
 | `Enter` | Open another `.obj` model |
 | `=` / `-` | Automatic rotation speed: `=` −15°/s, `-` +15°/s (limited to ±720°/s) |
 | `0` | Stop the automatic rotation |
@@ -389,7 +389,7 @@ All rules accept `MODE=dev` (default) or `MODE=release`.
 ### Bonus
 
 - **Ear clipping triangulation**: <!-- TODO(Theo): une phrase. Faits : faces concaves et non planes, normale de Newell, projection 2D, repli en éventail. src/obj.rs (triangulate_face, project_face_2d) -->
-- **Box mapping** *(not implemented yet)*: <!-- TODO(Theo): une phrase quand ce sera fait. src/model.rs -->
+- **Box mapping**: <!-- TODO(Theo): une phrase. Faits : axe de projection choisi par triangle selon sa normale, clé de déduplication (FaceVertex, axes), bascule avec la touche KEY. src/model.rs (load_model), src/obj.rs (get_normal_axis_max) -->
 
 ### Extras
 
@@ -398,7 +398,7 @@ All rules accept `MODE=dev` (default) or `MODE=release`.
 
 - **File picker (`Enter`)**: <!-- TODO(Theo): une phrase. Faits : crate rfd, charge un autre .obj sans redémarrer. src/key.rs (file_manager), src/app/render.rs (reload_model) -->
 - **Texture switching (`←` / `→`)**: <!-- TODO(Theo): une phrase. Faits : tous les .ppm de resources/texture/. src/key.rs (change_texture_index), src/vulkan/texture.rs (init_texture_path) -->
-- **Choice of the UV projection axes (`1`, `2`, `3`)**: <!-- TODO(Theo): une phrase. src/model.rs (tex_axe), src/main.rs (Signal::TextureAxe) -->
+- **Choice of the UV projection axes (`1`, `2`, `3`)**: <!-- TODO(Theo): une phrase. Faits : mode projection plane uniquement. src/model.rs (tex_axe), src/main.rs (Signal::TextureAxe) -->
 - **Texture repetition**: <!-- TODO(Theo): une phrase. Faits : sampler REPEAT + TEXTURE_ZOOM (constante 1.0, pas de touche). src/vulkan/texture.rs, src/model.rs -->
 - **Adjustable rotation speed (`=` / `-` / `0`)**: <!-- TODO(Theo): une phrase. Faits : pas de 15°/s, limite ±720°/s. src/key.rs, src/main.rs (UpdateAngleSpeed) -->
 - **Manual rotation (`I` `K` `U` `O` `J` `L`)**: <!-- TODO(Theo): une phrase. Faits : 50°/s, autour des axes de l'objet. src/key.rs (rotate_model), src/app/render.rs (orientation) -->
@@ -434,7 +434,7 @@ The Vulkan part of Scop comes from the [Vulkan Tutorial (Rust) by Kyle Mayes](ht
 | Shaders | Tutorial, extended (grey faces, transition) | `shaders/` |
 | Ear clipping triangulation | Mine | `src/obj.rs` |
 | Centring, scaling and axis reordering of the model | Mine | `src/model.rs` |
-| Generated texture coordinates | Mine | `src/model.rs` |
+| Generated texture coordinates: planar projection, then box mapping | Mine | `src/model.rs`, `src/obj.rs` |
 | Keyboard movement and rotation | Mine | `src/key.rs`, `src/main.rs`, `src/app/render.rs` |
 | Grey faces and grey ↔ texture transition | Mine | `shaders/shader.frag`, `src/app/render.rs` |
 | File picker, texture switching | Mine | `src/key.rs` |
@@ -461,7 +461,7 @@ In the code:
 
 - `TARGET_SIZE = 1.5`; a `FaceVertex` is the triplet of indices (position, `vt`, `vn`) of one corner.
 - The staging buffer lives in CPU-visible memory; its content is copied once to device-local memory.
-- The vertex and index buffers are rebuilt when another model is loaded (`Enter`) or when the UV axes change (`1`/`2`/`3`).
+- The vertex and index buffers are rebuilt when another model is loaded (`Enter`), when the UV axes change (`1`/`2`/`3`), or when the texture mapping mode changes (`N`).
 
 <!-- TODO(Theo): Explique le pipeline étape par étape.
      Questions pour t'aider :
@@ -576,8 +576,7 @@ The formulas of each matrix are in [The math behind Scop](#matrices).
 | **Whole program** | entry, instance, debug messenger (dev only), surface, physical device + MSAA sample count, logical device + graphics and present queues, descriptor set layout, global command pool, texture sampler, `image_available` semaphores and `in_flight` fences (×2) | never | `App::create`, `App::destroy` |
 | **Swapchain** | swapchain + image views, render pass, pipeline + pipeline layout, MSAA colour image + depth image, framebuffers, uniform buffers, descriptor pool + sets, per-image command pools and command buffers, `render_finished` semaphores, `images_in_flight` | window resized or minimised, `OUT_OF_DATE_KHR`, `SUBOPTIMAL_KHR` | `recreate_swapchain`, `destroy_swapchain` |
 | **User request** | texture image + view, descriptor pool + sets | `←` / `→` | `reload_texture` |
-| | vertex buffer + index buffer | `Enter`, `1`, `2`, `3` | `reload_model` |
-
+| | vertex buffer + index buffer | `Enter`, `1`, `2`, `3`, `N` | `reload_model` |
 <!-- TODO(Theo): Explique le rôle et la durée de vie des principaux objets Vulkan.
      Questions pour t'aider :
      - Pour chaque groupe : pourquoi ces objets-là dépendent-ils (ou pas) de la swapchain ?
@@ -669,11 +668,6 @@ outColor = vec4(mix(texture(texSampler, fragTexCoord).rgb, vec3(shade), pcs.mesh
 
 <!-- TODO(Theo): En une phrase : comment une image finit-elle « peinte » sur le modèle, même quand le .obj ne donne pas de coordonnées de texture ? -->
 
-> [!WARNING]
-> **Box mapping is not implemented yet** (commit `fca6c0a`): the code uses one planar projection for the whole model.
-<!-- TODO(Theo): quand le box mapping est fait, enlève cet avertissement et mets à jour : cette section,
-     la ligne « Box mapping » de Features, le choix technique « Box mapping » et la capture 42_boxmapping.png. -->
-
 **Loading** (`src/ppm.rs`, `src/vulkan/texture.rs`):
 
 - PPM `P6` only, `maxval = 255`, each header element on its own line, header lines starting with `#` are skipped.
@@ -687,9 +681,13 @@ outColor = vec4(mix(texture(texSampler, fragTexCoord).rgb, vec3(shade), pcs.mesh
 | Case | UV |
 | --- | --- |
 | The corner has a `vt` index | `(u, 1 − v)` from the file |
-| No `vt` index | planar projection on 2 axes of the bounding box (formula in [The math behind Scop](#texture-and-shading)) |
+| No `vt` index, planar mode | projection on 2 axes chosen **for the whole model** from the bounding box (formula in [The math behind Scop](#texture-and-shading)) |
+| No `vt` index, box mapping | projection on 2 axes chosen **for each triangle** from its normal (formula in [The math behind Scop](#texture-and-shading)) |
 
-- Keys `1`, `2`, `3` set `texture_axe` to 0, 1, 2. With key `2` (the default, `texture_axe = 1`), the projection drops the axis where the bounding box is thinnest; keys `1` and `3` keep that axis. Figure in [The math behind Scop](#texture-and-shading).
+- The mode is stored in `AppData::toggle_box_mapping` and switched with `N`; Scop starts in box mode.
+- Planar mode: keys `1`, `2`, `3` set `texture_axe` to 0, 1, 2. With key `2` (the default, `texture_axe = 1`), the projection drops the axis where the bounding box is thinnest; keys `1` and `3` keep that axis.
+- Box mapping: the normal of each triangle is `(b − a) × (c − a)`; the two kept axes come from `get_normal_axis_max`, the same function used by `project_face_2d` for ear clipping.
+- Deduplication key of `unique_vertices`: `(FaceVertex, axes)`. A corner shared by two triangles projected on different axes becomes two vertices. When the corner has a `vt` index, the axes are replaced by `(0, 0)`, so it is not duplicated for nothing.
 - `TEXTURE_ZOOM = 1.0`.
 
 | Planar projection | Box mapping |
@@ -701,8 +699,8 @@ outColor = vec4(mix(texture(texSampler, fragTexCoord).rgb, vec3(shade), pcs.mesh
      - Qu'est-ce qu'une mipmap ? Que verrait-on sans, quand le modèle est loin ?
      - Que fait le mode REPEAT quand u vaut 2.5 ? À quoi sert TEXTURE_ZOOM ?
      - Projection plane : pourquoi la texture s'étire-t-elle sur la tranche du logo 42 ?
-     - Box mapping : comment choisir l'axe d'un triangle à partir de sa normale ?
-     - Pourquoi un même sommet peut-il alors avoir deux UV différentes, et que faut-il changer dans la déduplication ?
+     - Box mapping : comment choisir l'axe d'un triangle à partir de sa normale ? Pourquoi réutiliser la même fonction que pour l'ear clipping ?
+     - Pourquoi un même sommet peut-il avoir deux UV différentes ? Pourquoi l'axe entre-t-il dans la clé de déduplication, sauf pour les sommets qui ont un vt ?
      - Pourquoi 1 − v pour les vt du fichier ?
      Fichiers à relire : src/ppm.rs, src/vulkan/texture.rs, src/model.rs (build_vertex, load_model)
 -->
@@ -755,6 +753,17 @@ Every formula below is copied from the code. Matrices are written in rows, even 
 <!-- TODO(Theo): Vérifie la colonne « Origin ». Pour chaque formule plus bas, explique en 2 ou 3 phrases :
      ce qu'elle calcule, pourquoi elle marche, et un petit exemple chiffré si possible.
      C'est ta meilleure révision pour la soutenance. -->
+Box mapping (`load_model`), for a triangle `(a, b, c)`:
+
+```math
+n = (b - a) \times (c - a)
+\qquad
+k = \arg\max_i |n_i|
+```
+
+The two kept axes follow the same rule as the projection to 2D in [Geometry](#geometry): `((k+1) % 3, (k+2) % 3)` if `n_k ≥ 0`, otherwise swapped. The UV formula is then the planar one, with these two axes.
+
+<!-- TODO(Theo): Pourquoi le plus grand |n_i| ? Que se passerait-il sans l'échange des axes quand n_k < 0 (indice : texture en miroir) ? -->
 
 #### Vectors and camera
 
@@ -1010,16 +1019,17 @@ orientation = orientation \times R(\widehat{axis},\; 50^\circ/s \cdot dt)
      Fichiers à relire : src/app/render.rs, shaders/shader.frag
 -->
 
-#### Box mapping and the deduplication key *(planned)*
+#### Box mapping and the deduplication key
 
-**In the code:** not yet (commit `fca6c0a`). Today: one planar projection for the whole model, and the key of `unique_vertices` is the `FaceVertex` only (position, `vt`, `vn` indices). Alternative not kept: triplanar mapping in the fragment shader.
+**In the code:** each triangle without `vt` gets its own projection axes from its normal (`get_normal_axis_max`); the key of `unique_vertices` is `(FaceVertex, axes)`, with `(0, 0)` as axes for corners that have a `vt` index. The planar projection is still available with `N`. Alternative not kept: triplanar mapping in the fragment shader.
 
 <!-- Questions pour t'aider :
-     - Quel défaut de la projection plane le box mapping corrige-t-il ?
+     - Quel défaut de la projection plane le box mapping corrige-t-il ? Montre-le avec les captures 42_planar.png et 42_boxmapping.png.
      - Triplanar mapping : qu'est-ce que c'est, et pourquoi ne pas l'avoir choisi (normales, coût, sujet) ?
-     - Avec le box mapping, que se passe-t-il si deux triangles d'axes différents partagent un sommet et que la clé ne contient pas l'axe ?
-     - Alternative : ne plus dédupliquer du tout ? Quel coût en mémoire ?
-     Fichiers à relire : src/model.rs (load_model), src/obj.rs (FaceVertex)
+     - Pourquoi l'axe doit-il être dans la clé ? Que verrait-on sur les arêtes du logo sans lui ?
+     - Pourquoi (0, 0) pour les sommets qui ont un vt ? Pourquoi cette valeur ne peut-elle pas être confondue avec de vrais axes ?
+     - Pourquoi avoir gardé la projection plane avec une touche ?
+     Fichiers à relire : src/model.rs (load_model), src/obj.rs (get_normal_axis_max, FaceVertex)
 -->
 
 #### Movement relative to the camera
@@ -1266,7 +1276,7 @@ Click on a bug to see what changed in the code.
     │   ├── data.rs            AppData: every Vulkan handle + model and texture state
     │   └── render.rs          one frame, reload model/texture, command buffers, uniform buffer
     ├── math.rs                vectors, Matrix4, Deg/Rad, perspective, look-at, camera_basis
-    ├── model.rs               Vertex, load_model (centre, scale, UVs, deduplication)
+    ├── model.rs               Vertex, load_model (centre, scale, UVs: planar or box mapping, deduplication)
     ├── obj.rs                 OBJ parser, ear clipping, bounding box
     ├── ppm.rs                 PPM (P6) parser
     ├── vulkan.rs              list of the vulkan/ modules
@@ -1300,7 +1310,7 @@ Click on a bug to see what changed in the code.
 
 <!-- TODO(Theo): Liste les limites connues et ce que tu ferais ensuite. Une puce par limite : le problème, puis la piste.
      Pistes :
-     - box mapping pas encore implémenté (projection plane seule) ; ensuite, coutures visibles entre zones du box mapping → triplanar mapping ;
+     - box mapping : coutures visibles entre deux zones projetées sur des axes différents → triplanar mapping ;
      - dérive de la matrice d'orientation (erreurs d'arrondi accumulées) → quaternions ou ré-orthonormalisation ;
      - zones grises vis-à-vis du sujet : crates rfd (sélecteur de fichiers), anyhow / thiserror, et tobj, présent dans Cargo.toml mais pas utilisé dans src/ ;
      - pas d'argument en ligne de commande pour choisir le .obj ;
@@ -1370,15 +1380,13 @@ Click on a bug to see what changed in the code.
 
 AI (Claude, by Anthropic) was used during this project. The list below is **to be checked and completed by Theo**.
 
-- **Main role: teaching assistant.** The AI guided with questions instead of giving the code, in particular for `math.rs`, the OBJ and PPM parsers, keyboard handling, the file browsing, texture switching, movement and rotation, and the steps of ear clipping (Newell normal, 2D projection, geometric tests).
+- **Main role: teaching assistant.** The AI guided with questions instead of giving the code, in particular for `math.rs`, the OBJ and PPM parsers, keyboard handling, the file browsing, texture switching, movement and rotation, the steps of ear clipping (Newell normal, 2D projection, geometric tests) and the steps of box mapping (normal of each triangle, choice of the axes, deduplication key).
 - **Explaining concepts:** Vulkan objects and synchronisation, the column-major convention, the cross product, the camera frame, UV coordinates and box mapping, modulo to loop over a list, GLSL.
 - **Debugging help:** finding memory leaks (Valgrind tests, `VmRSS`, `println!`), reading validation errors, comparing the code with the tutorial's official repository.
 - **Code written by the AI at Theo's request:**
   - refactor of the per-image resources (command pools and sync objects recreated with the swapchain);
   - the `make deps` rule and fixes to the `Makefile`;
   - `shaders/compile.sh`;
-  - the final version of the procedural UVs, with the division-by-zero guard;
-  - the end of the ear clipping loop;
   - the test file `resources/model/concave_test.obj`.
 - **Code review:** idiomatic Rust, naming, consistency with the subject.
 - **This README:** structure, diagrams, tables, the facts and formulas copied from the code, the banner and the figures (`docs/images/make_banner.py`, `docs/diagrams/make_diagrams.py`). The figures contain short explanations; every explanation in the text is written by Theo.
