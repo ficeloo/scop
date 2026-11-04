@@ -82,6 +82,8 @@ unsafe fn check_physical_device(
     let features = instance.get_physical_device_features(physical_device);
     if features.sampler_anisotropy != vk::TRUE {
         return Err(anyhow!(SuitabilityError("No sampler anisotropy.")));
+    } else if features.geometry_shader != vk::TRUE {
+        return Err(anyhow!(SuitabilityError("No geometry shader.")));
     }
 
     Ok(())
