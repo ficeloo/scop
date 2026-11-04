@@ -5,7 +5,7 @@ use anyhow::Result;
 use vulkanalia::prelude::v1_0::*;
 
 use crate::app::AppData;
-use crate::math::{Vec2, Vec3, vec2, vec3};
+use crate::math::{Vec2, Vec3, get_normal_axis_max, vec2, vec3};
 use crate::obj::{self, FaceVertex, ObjModel};
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -126,13 +126,33 @@ pub fn load_model(data: &mut AppData) -> Result<()> {
     let mut unique_vertices = HashMap::new();
 
     for face in &model.faces {
+        let pos_a = model.positions[face[0].position_index];
+        let pos_b = model.positions[face[1].position_index];
+        let pos_c = model.positions[face[2].position_index];
+
+        let a = vec3(pos_a[0], pos_a[1], pos_a[2]);
+        let b = vec3(pos_b[0], pos_b[1], pos_b[2]);
+        let c = vec3(pos_c[0], pos_c[1], pos_c[2]);
+
+        let normal = (b - a).cross(c - a);
+
+        let normal_axis = get_normal_axis_max([normal.x, normal.y, normal.z]);
+
         for fv in face {
-            if let Some(i) = unique_vertices.get(fv) {
+            let key_axis = if fv.tex_coord_index.is_some() {
+                (0, 0)
+            } else {
+                normal_axis
+            };
+            let key = (fv, key_axis);
+
+            if let Some(i) = unique_vertices.get(&key) {
                 data.indices.push(*i as u32);
             } else {
-                let vertex = build_vertex(&model, fv, center, facteur, min, inv_etendu, tex_axe);
+                let vertex =
+                    build_vertex(&model, fv, center, facteur, min, inv_etendu, normal_axis);
                 let index = data.vertices.len();
-                unique_vertices.insert(fv, index);
+                unique_vertices.insert(key, index);
                 data.vertices.push(vertex);
                 data.indices.push(index as u32);
             }
