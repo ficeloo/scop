@@ -1,9 +1,9 @@
 use anyhow::{Context, Result, anyhow};
-use std::path::PathBuf;
 use std::fs::read_to_string;
+use std::path::PathBuf;
 use thiserror::Error;
 
-use crate::math::{Point2, point2};
+use crate::math::{Point2, get_normal_axis_max, point2};
 
 #[derive(Clone, Debug, Default)]
 pub struct ObjModel {
@@ -273,19 +273,7 @@ fn project_face_2d(face_points: &[[f32; 3]]) -> Vec<Point2> {
         normal[2] += (current[0] - next[0]) * (current[1] + next[1]);
     }
 
-    let normal_axis = normal
-        .iter()
-        .enumerate()
-        .max_by(|(_, x), (_, y)| x.abs().total_cmp(&y.abs()))
-        .map(|(i, &r)| {
-            if r >= 0.0 {
-                ((i + 1) % 3, (i + 2) % 3)
-            } else {
-                ((i + 2) % 3, (i + 1) % 3)
-            }
-        })
-        .unwrap_or((1, 2));
-
+    let normal_axis = get_normal_axis_max(normal);
     let (x, y) = normal_axis;
     for i in 0..len {
         let current = face_points[i];
