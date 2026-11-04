@@ -102,6 +102,20 @@ fn build_vertex(
     }
 }
 
+fn toggling_box_mapping(model: &ObjModel, face: &[FaceVertex; 3]) -> (usize, usize) {
+    let pos_a = model.positions[face[0].position_index];
+    let pos_b = model.positions[face[1].position_index];
+    let pos_c = model.positions[face[2].position_index];
+
+    let a = vec3(pos_a[0], pos_a[1], pos_a[2]);
+    let b = vec3(pos_b[0], pos_b[1], pos_b[2]);
+    let c = vec3(pos_c[0], pos_c[1], pos_c[2]);
+
+    let normal = (b - a).cross(c - a);
+
+    get_normal_axis_max([normal.x, normal.y, normal.z])
+}
+
 pub fn load_model(data: &mut AppData) -> Result<()> {
     let model = obj::parse_obj(&data.image_path)?;
 
@@ -126,17 +140,11 @@ pub fn load_model(data: &mut AppData) -> Result<()> {
     let mut unique_vertices = HashMap::new();
 
     for face in &model.faces {
-        let pos_a = model.positions[face[0].position_index];
-        let pos_b = model.positions[face[1].position_index];
-        let pos_c = model.positions[face[2].position_index];
-
-        let a = vec3(pos_a[0], pos_a[1], pos_a[2]);
-        let b = vec3(pos_b[0], pos_b[1], pos_b[2]);
-        let c = vec3(pos_c[0], pos_c[1], pos_c[2]);
-
-        let normal = (b - a).cross(c - a);
-
-        let normal_axis = get_normal_axis_max([normal.x, normal.y, normal.z]);
+        let normal_axis = if data.toggle_box_mapping {
+            toggling_box_mapping(&model, face)
+        } else {
+            tex_axe
+        };
 
         for fv in face {
             let key_axis = if fv.tex_coord_index.is_some() {
