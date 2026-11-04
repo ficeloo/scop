@@ -102,7 +102,7 @@ fn build_vertex(
     }
 }
 
-fn toggling_box_mapping(model: &ObjModel, face: &[FaceVertex; 3]) -> (usize, usize) {
+fn face_projection_axis(model: &ObjModel, face: &[FaceVertex; 3]) -> (usize, usize) {
     let pos_a = model.positions[face[0].position_index];
     let pos_b = model.positions[face[1].position_index];
     let pos_c = model.positions[face[2].position_index];
@@ -141,7 +141,7 @@ pub fn load_model(data: &mut AppData) -> Result<()> {
 
     for face in &model.faces {
         let normal_axis = if data.toggle_box_mapping {
-            toggling_box_mapping(&model, face)
+            face_projection_axis(&model, face)
         } else {
             tex_axe
         };
