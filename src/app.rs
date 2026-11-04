@@ -126,7 +126,7 @@ impl App {
             start: Instant::now(),
             last_frame_time: Instant::now(),
             models: 1,
-            ang_vel: 0.0,
+            ang_vel: 5.0,
             curr_angle: -90.0,
             lin_vel: 1.0,
             direction: vec3(0.0, 0.0, 0.0),
