@@ -86,6 +86,7 @@ impl App {
         data.image_path = PathBuf::from(DEFAULT_MODEL);
         data.texture_path_vec = init_texture_path()?;
         data.texture_axe = 1;
+        data.toggle_box_mapping = true;
         pick_physical_device(&instance, &mut data)?;
         let device = create_logical_device(&entry, &instance, &mut data)?;
         create_swapchain(window, &instance, &device, &mut data)?;

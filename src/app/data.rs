@@ -58,4 +58,5 @@ pub struct AppData {
     pub texture_path_vec: Vec<PathBuf>,
     pub texture_path_index: usize,
     pub texture_axe: usize,
+    pub toggle_box_mapping: bool,
 }
