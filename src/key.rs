@@ -3,6 +3,7 @@ use winit::keyboard::KeyCode;
 
 use crate::app::AppData;
 use crate::math::{Vector3, vec3};
+use crate::reload_model;
 
 const SPEED: f32 = 15.0;
 
@@ -13,6 +14,7 @@ pub enum Signal {
     ReloadTexture,
     TextureAxe(usize),
     ToggleMeshView,
+    ToggleBoxMapping,
     UpdateAngleSpeed(f32),
     StopRotation,
 }
@@ -51,11 +53,17 @@ fn file_manager(data: &mut AppData) -> Result<Signal> {
     }
 }
 
+fn toggle_box_mapping(data: &mut AppData) -> Result<Signal> {
+    data.toggle_box_mapping = !data.toggle_box_mapping;
+    Ok(Signal::ToggleBoxMapping)
+}
+
 pub fn handle_input(input: KeyCode, data: &mut AppData) -> Result<Signal> {
     match input {
         KeyCode::Enter => file_manager(data),
         KeyCode::ArrowLeft => change_texture_index(data, false),
         KeyCode::ArrowRight => change_texture_index(data, true),
+        KeyCode::KeyN => toggle_box_mapping(data),
         KeyCode::KeyM => Ok(Signal::ToggleMeshView),
         KeyCode::Digit1 => Ok(Signal::TextureAxe(0)),
         KeyCode::Digit2 => Ok(Signal::TextureAxe(1)),
