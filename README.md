@@ -27,15 +27,12 @@ Pour que ce soit digeste :
 
 <img src="docs/images/banner.svg" alt="Scop" width="900">
 
-<!-- TODO(Theo): ta phrase d'accroche, en gras, une seule phrase (**comme ceci**).
-     Questions pour t'aider :
-     - Si tu ne pouvais dire qu'une phrase à un recruteur, que dirais-tu du projet ?
-     - Quels mots-clés doivent y être (Rust, Vulkan, .obj, fait maison) ?
--->
+****
+**Home-made introduction to graphical modelling, made on the Vulkan API with Rust**
 
 [![Rust](https://img.shields.io/badge/Rust-edition%202024-orange?logo=rust)](https://rust-lang.org/)
-![Vulkan](https://img.shields.io/badge/API-Vulkan-AC162C?logo=vulkan)
-![42](https://img.shields.io/badge/42-graphics%20branch-000000)
+[![Vulkan](https://img.shields.io/badge/API-Vulkan-AC162C?logo=vulkan)](https://vulkan.org/)
+[![42](https://img.shields.io/badge/42-graphics%20branch-000000)](https://www.42network.org/)
 
 </div>
 
@@ -52,16 +49,16 @@ Pour que ce soit digeste :
 - [Features](#features): mandatory part, bonus, extras
 - [Technical overview](#technical-overview)
   - [Built on the vulkanalia tutorial](#built-on-the-vulkanalia-tutorial)
-  - [How it works](#how-it-works):
-    [1. Data pipeline](#1-the-data-pipeline) ·
-    [2. OBJ parser](#2-the-obj-parser) ·
-    [3. Triangulation](#3-triangulation-fan-then-ear-clipping) ·
-    [4. Matrices](#4-from-the-file-to-the-screen-the-matrices) ·
-    [5. Vulkan objects](#5-vulkan-objects-and-their-lifecycle) ·
-    [6. One frame](#6-rendering-one-frame) ·
-    [7. Shaders](#7-shaders-and-push-constants) ·
-    [8. Textures](#8-textures-and-uv-coordinates) ·
-    [9. Keyboard](#9-keyboard-input-movement-and-rotation)
+  - [How it works](#how-it-works):  
+    [1. Data pipeline](#1-the-data-pipeline)  
+    [2. OBJ parser](#2-the-obj-parser)  
+    [3. Triangulation](#3-triangulation-fan-then-ear-clipping)  
+    [4. Matrices](#4-from-the-file-to-the-screen-the-matrices)  
+    [5. Vulkan objects](#5-vulkan-objects-and-their-lifecycle)  
+    [6. One frame](#6-rendering-one-frame)  
+    [7. Shaders](#7-shaders-and-push-constants)  
+    [8. Textures](#8-textures-and-uv-coordinates)  
+    [9. Keyboard](#9-keyboard-input-movement-and-rotation)  
   - [The math behind Scop](#the-math-behind-scop)
   - [Technical choices](#technical-choices)
   - [Bugs & lessons learned](#bugs--lessons-learned)
@@ -69,7 +66,7 @@ Pour que ce soit digeste :
   - [Known limitations / future work](#known-limitations--future-work)
 - [Resources](#resources): references, AI usage
 
----
+****
 
 ## Description
 
@@ -87,6 +84,13 @@ Pour que ce soit digeste :
        (chapitres 1 à 37), avec un lien vers « Built on the vulkanalia tutorial » pour le détail.
      Fichiers à relire : src/main.rs, src/app.rs, Cargo.toml, scop_requirements.txt
 -->
+Scop is the first graphics project after the core curriculum at École 42.
+
+In this project, we build an application from scratch that displays a 3D object in a window, rotates it, and moves it along all axes.  
+I chose Vulkan over OpenGL for this project because this API allows for a great deal of flexibility in configuration—and therefore optimization—which is essential in video game development.  
+This choice came at the cost of numerous lines of configuration code (~1,200 lines with Vulkan versus ~30 for OpenGL for the same result) but gave me a much more comprehensive understanding of CPU/GPU interaction in modeling calculations.
+
+The Vulkan setup was completed by following Kyles Meyes’ tutorial on vulkanalia (see the section [Built on the vulkanalia tutorial](#built-on-the-vulkanalia-tutorial)).
 
 ### What you see
 
