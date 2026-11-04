@@ -19,6 +19,10 @@ pub enum Signal {
 }
 
 fn change_texture_index(data: &mut AppData, direction: bool) -> Result<Signal> {
+    if data.toggle_box_mapping {
+        return Ok(Signal::Nothing);
+    }
+
     let len = data.texture_path_vec.len();
     let i = data.texture_path_index;
 

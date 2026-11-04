@@ -100,10 +100,8 @@ fn main() -> Result<()> {
                             Ok(Signal::ReloadModel) => reload_model(&mut app),
                             Ok(Signal::ReloadTexture) => reload_texture(&mut app),
                             Ok(Signal::TextureAxe(axe)) => {
-                                if !app.data.toggle_box_mapping {
-                                    app.data.texture_axe = axe;
-                                    reload_model(&mut app);
-                                }
+                                app.data.texture_axe = axe;
+                                reload_model(&mut app);
                             }
                             Ok(Signal::ToggleMeshView) => app.mesh_view = !app.mesh_view,
                             Ok(Signal::ToggleBoxMapping) => reload_model(&mut app),
