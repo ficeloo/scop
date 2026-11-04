@@ -86,7 +86,7 @@ fn build_vertex(
             let (y, x) = tex_axe;
             vec2(
                 (model_pos[x] - min[x]) * inv_etendu[x] * TEXTURE_ZOOM,
-                (1.0 - model_pos[y] - min[y]) * inv_etendu[y] * TEXTURE_ZOOM,
+                1.0 - (model_pos[y] - min[y]) * inv_etendu[y] * TEXTURE_ZOOM,
             )
         }
     };
