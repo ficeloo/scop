@@ -75,15 +75,6 @@ Pour que ce soit digeste :
 
 ### What is Scop
 
-<!-- TODO(Theo): 2 ou 3 petits paragraphes : le but, le contexte 42, et d'où vient le socle du projet.
-     Questions pour t'aider :
-     - Que demande le sujet, en une phrase ? Qu'est-ce que le programme affiche à l'écran ?
-     - Quelle contrainte rend le projet intéressant (bibliothèques externes seulement pour la fenêtre et les événements) ? Qu'as-tu dû écrire toi-même ?
-     - Pourquoi Rust + Vulkan plutôt que C + OpenGL ? Qu'est-ce que ça t'a apporté, qu'est-ce que ça t'a coûté ?
-     - Crédit : une phrase visible qui dit que le socle Vulkan vient du tutoriel vulkanalia de Kyle Mayes
-       (chapitres 1 à 37), avec un lien vers « Built on the vulkanalia tutorial » pour le détail.
-     Fichiers à relire : src/main.rs, src/app.rs, Cargo.toml, scop_requirements.txt
--->
 Scop is the first graphics project after the core curriculum at École 42.
 
 In this project, we build an application from scratch that displays a 3D object in a window, rotates it, and moves it along all axes.  
