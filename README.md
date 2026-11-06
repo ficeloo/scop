@@ -85,15 +85,11 @@ The Vulkan setup was completed by following Kyles Meyes’ tutorial on vulkanali
 
 ### What you see
 
-<!-- TODO(Theo): capture the images listed in docs/images/README.md, then delete this comment. -->
-
 | Grey view | Textured view |
 | :---: | :---: |
 | ![42 logo, grey faces](docs/images/42_grey.png) | ![42 logo, textured](docs/images/42_textured.png) |
 | **Transition grey ↔ texture** | **Utah teapot** |
-| ![Transition in progress](docs/images/transition.png) | ![Teapot](docs/images/teapot.png) |
-
-<!-- TODO(Theo): une phrase sous les captures : que regarder sur chaque image ? -->
+| ![Transition in progress](docs/images/transition.gif) | ![Teapot](docs/images/teapot.png) |
 
 ### How it works, in 6 steps
 
@@ -101,13 +97,28 @@ The Vulkan setup was completed by following Kyles Meyes’ tutorial on vulkanali
   <img src="docs/diagrams/six-steps.svg" alt="Scop in 6 steps: read the .obj file, cut faces into triangles, send them to the GPU once; then every frame: place the object, colour every pixel, show the image" width="860">
 </p>
 
-<!-- TODO(Theo): Raconte les 6 étapes au lecteur débutant, 1 ou 2 phrases par étape.
-     Questions pour t'aider :
-     - Que contient un fichier .obj ? Pourquoi faut-il le transformer en triangles ?
-     - La figure dit quelles étapes se font une seule fois et lesquelles à chaque image : pourquoi cette séparation ?
-     - Pour chaque étape, quel mot de « Words to know » faut-il connaître ?
-     Fichiers à relire : src/obj.rs, src/model.rs, src/app/render.rs, shaders/shader.frag
--->
+- **Step 1:**
+We need to read the .obj file, as specified in the subject. To do this, we examine each line and create a list of corner points (called **Vertices**) and **Faces**.
+
+- **Step 2:**
+Next, we need to divide these **Faces** into **Triangles** so that the **GPU** can render our model. Triangulation is necessary because the **GPU** cannot render anything other than **Triangles**. We then prepare to apply the **Texture**. If the .obj file contains **UV coordinates**, each **Vertex** already knows which location on the **Texture** it corresponds to. Otherwise, we calculate them by projection, based on the **Normal** of each **Triangle**.
+
+- **Step 3:**
+All of the object’s **Triangles** are then sent to the **GPU** so that it keeps them in memory and does not need them again.
+
+*Here, we separate the one-time steps from those performed on every **Frame**. This is necessary to render a moving, textured object in real time. This prevents the file from being re-read unnecessarily, avoiding redundant calculations on the CPU.*
+
+- **Step 4:**
+We then assign a transformation **Matrix** to our model, which defines its rotation and position in space. It also undergoes a **Perspective** transformation that makes it appear smaller depending on its distance.
+
+- **Step 5:**
+The **GPU** then colors each pixel of the object using the **Shader**. For each pixel, it reads the **Texture** at the location specified by the **UV coordinates**, or selects a shade of grey specific to each **Triangle**, depending on the selected view. The transition from one view to another is smooth, achieved by gradually blending the two colors.
+
+- **Step 6:**
+The newly created image is then placed in a **Swapchain** and rendered directly to the window. The **Swapchain** allows for a seamless transition from one **Frame** to the next without losing the image being rendered, enabling the **GPU** to render the next one; thus, the displayed image is always complete.
+
+*Et voilà !*  
+Our exquisite model is rendered in real time before your beautiful eyes !
 
 ### Words to know
 
