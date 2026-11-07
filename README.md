@@ -122,46 +122,25 @@ Our exquisite model is rendered in real time before your beautiful eyes !
 
 ### Words to know
 
-<!-- TODO(Theo): Pour chaque mot : une ou deux phrases, sans jargon, avec si possible une analogie de la vie courante.
-     Test : un ami qui n'a jamais fait de 3D comprendrait-il ta phrase sans lire les autres ?
--->
+<!-- TODO(Theo): Pour chaque mot : une ou deux phrases, sans jargon, avec si possible une analogie de la vie courante. -->
+<!--      Test : un ami qui n'a jamais fait de 3D comprendrait-il ta phrase sans lire les autres ? -->
 
 #### The object
 
-**Vertex**
-<!-- Questions pour t'aider :
-     - Quelles informations porte un sommet dans Scop (regarde la struct Vertex) ?
-     - Quel objet du quotidien ressemble à un ensemble de points reliés ?
-     Fichiers à relire : src/model.rs, src/obj.rs
--->
+**Vertex :**
+A Vertex is defined as a corner of the model you want to render. In my Scop, it contains 2 things : position and texture coordinates (UV coordinates).
 
-**Face**
-<!-- Questions pour t'aider :
-     - Quelle différence entre une face d'un fichier .obj et un triangle ?
-     - Combien de sommets peut avoir une face dans tes modèles de test ?
-     Fichiers à relire : src/obj.rs (parse_face_line), resources/model/concave_test.obj
--->
+**Face :**
+A Face is a polygon made of vertices and it is retrieved from the .obj. Unlike a triangle, it can have more than 3 vertices. So, before drawing, Scop cuts each face into triangles.
 
-**Triangle**
-<!-- Questions pour t'aider :
-     - Pourquoi la carte graphique ne dessine-t-elle que des triangles ?
-     - Qu'a de spécial un triangle par rapport à un carré (plat, toujours convexe) ?
-     Fichiers à relire : src/obj.rs (triangulate_face), src/vulkan/pipeline.rs (TRIANGLE_LIST)
--->
+**Triangle :**
+Triangles are the building blocks of 3D modelling. Nowadays GPUs are optimized for rendering triangles because of their simplicity. Besides, a triangle is necessarily flat and convex whereas a quadrilateral may not be.
 
-**Mesh**
-<!-- Questions pour t'aider :
-     - Qu'est-ce qui compose un mesh dans Scop (vertices + indices) ?
-     - Quel objet réel est « creux » et fait de petites plaques assemblées ?
-     Fichiers à relire : src/app/data.rs (vertices, indices), src/model.rs
--->
+**Mesh :**
+A polygon mesh is a collection of vertices and faces that defines the shape of an object's surface. Accordingly, a mesh represents only the surface hence the "hollowness" of the meshes.
 
-**Normal**
-<!-- Questions pour t'aider :
-     - Vers où pointe la normale d'une face ? Qu'est-ce qu'elle t'apprend sur la face ?
-     - Où utilises-tu une normale dans Scop (indice : triangulation) ?
-     Fichiers à relire : src/obj.rs (project_face_2d)
--->
+**Normal :**
+In geometry, the normal is the perpendicular vector of a surface. In scop, normals are used for knowing the orientation of a face and so, knowing how to flatten the face to avoid graphical artefact, but also to apply a texture (only in box mapping mode).
 
 #### Painting it
 
