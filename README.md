@@ -158,42 +158,22 @@ A shader is a program executed by the GPU. It needs to be compiled before it can
 **Matrix :**
 In mathematics, a matrix is simply a grid composed of numbers. In scop, and in 3D modelling in general, it can tell the position, the rotation, the scale or to project a perspective of an object in the world. Multiplying several matrices together transforms the first matrix into an other, describing movement in a 3D world.
 
-**Perspective**
-<!-- Questions pour t'aider :
-     - Pourquoi un objet lointain paraît-il plus petit ?
-     - Que représentent le champ de vision (45°), near (0.1) et far (10) ?
-     Fichiers à relire : src/math.rs (perspective), src/app/render.rs (update_uniform_buffer)
--->
+**Perspective :**
+To give an object the impression of distance with the camera that perceives it, we introduce the perspective matrix. It has 4 major parameters : fovy, aspect, near and far. Fovy is the vertical field of view, aspect is the width/height ratio of the window, near is the minimum distance from the camera where things are rendered and far is the maximum distance before they stop being rendered.
 
 #### Showing it
 
-**GPU**
-<!-- Questions pour t'aider :
-     - En quoi le GPU est-il différent du CPU ? Pourquoi est-il bon pour dessiner ?
-     - Comment Scop choisit-il le GPU à utiliser ?
-     Fichiers à relire : src/vulkan/device.rs (pick_physical_device)
--->
+**GPU :**
+GPU, also known as Graphics Processing Unit, is a hardware component specialized in the computing and rendering of images, videos and animations. Instead of processing instructions mostly sequentially like the CPU does, a GPU is able to compute thousands of operations simultaneously.
 
-**Vulkan**
-<!-- Questions pour t'aider :
-     - Vulkan est-il une bibliothèque de dessin, ou un moyen de parler au GPU ?
-     - Pourquoi dit-on que Vulkan est « bas niveau » par rapport à OpenGL ?
-     Fichiers à relire : src/vulkan/instance.rs, src/app.rs (App::create)
--->
+**Vulkan :**
+Vulkan is an API (Application Programming Interface) that communicates directly with the GPU to render 3D models. Whereas OpenGL is a high level API that does a lot of work for you, Vulkan lets the developer tweak every parameter to allow optimizations and adjustments per project.
 
-**Frame**
-<!-- Questions pour t'aider :
-     - Combien de frames par seconde environ, et qu'est-ce qui les déclenche dans Scop ?
-     - Que veut dire « frames in flight » (MAX_FRAMES_IN_FLIGHT = 2) ?
-     Fichiers à relire : src/main.rs (RedrawRequested), src/vulkan/sync.rs
--->
+**Frame :**
+A frame is one image rendered to the screen. Scop displays on average 60 frames per second (FPS) but this value varies with the refresh rate of your screen.
 
-**Swapchain**
-<!-- Questions pour t'aider :
-     - Pourquoi a-t-on plusieurs images au lieu d'une seule ?
-     - Quand faut-il la recréer ?
-     Fichiers à relire : src/vulkan/swapchain.rs, src/app.rs (recreate_swapchain)
--->
+**Swapchain :**
+The swapchain is essentially a queue of images that are waiting to be presented on the screen. We need to allow multiple images in the queue to avoid tearing and visual artefacts. The swapchain makes sure that an image is fully rendered before displaying it on the screen. We also need to recreate it when the window is resized.
 
 ### Why this README
 
