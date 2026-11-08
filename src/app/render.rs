@@ -358,7 +358,7 @@ impl App {
                 Deg(45.0),
                 self.data.swapchain_extent.width as f32 / self.data.swapchain_extent.height as f32,
                 0.1,
-                10.0,
+                20.0,
             );
 
         let ubo = UniformBufferObject { view, proj };
