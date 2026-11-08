@@ -144,26 +144,14 @@ In geometry, the normal is the perpendicular vector of a surface. In scop, norma
 
 #### Painting it
 
-**Texture**
-<!-- Questions pour t'aider :
-     - Qu'est-ce qu'une texture, physiquement, en mémoire ?
-     - Quel geste de la vie courante ressemble au fait d'appliquer une image sur un objet ?
-     Fichiers à relire : src/ppm.rs, src/vulkan/texture.rs
--->
+**Texture :**
+A texture is simply a grid of numbers stored in the GPU's memory. It tells what colors are in the grid by storing Red, Green, Blue and Alpha channels (RGBA) per pixel. The value of each channel can go from 0 to 255. However, the alpha channel isn't provided by the .ppm file so we give it 255 (opaque). Each Vertex stores the position on the image, called UV coordinates.
 
-**UV coordinates**
-<!-- Questions pour t'aider :
-     - Que valent (0, 0) et (1, 1) sur l'image ? Que se passe-t-il au-delà de 1 ?
-     - Pourquoi U et V et pas X et Y ?
-     Fichiers à relire : src/model.rs (build_vertex)
--->
+**UV coordinates :**
+To tell how a Texture must be applied on a Triangle, the GPU needs coordinates, which are called UV coordinates. They are a position on the image, hence the U and V instead of X and Y, which are used for world coordinates. They range from (0, 0), the upper left of the texture, to (1, 1), the lower right. If the coordinates go beyond 1, the texture just repeats itself.
 
-**Shader**
-<!-- Questions pour t'aider :
-     - Où s'exécute un shader, et combien de fois par image ?
-     - Quelle différence entre ton vertex shader et ton fragment shader ?
-     Fichiers à relire : shaders/shader.vert, shaders/shader.frag
--->
+**Shader :**
+A shader is a program executed by the GPU. It needs to be compiled before it can be used. We compile 2 distinct shaders : shader.vert, which computes the poosition of a vertex, shader.frag, which computes how a pixel will be rendered. Both are compiled into .spv files which is loaded by Vulkan. The execution of shaders varies from zero to millions of times per frame : shader.vert is executed once per vertex and shader.frag is executed once per pixel.
 
 #### Placing it
 
