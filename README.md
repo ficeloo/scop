@@ -131,35 +131,35 @@ Our exquisite model is rendered in real time before your beautiful eyes !
 A Vertex is defined as a corner of the model you want to render. In my Scop, it contains 2 things : position and texture coordinates (UV coordinates).
 
 **Face :**
-A Face is a polygon made of vertices and it is retrieved from the .obj. Unlike a triangle, it can have more than 3 vertices. So, before drawing, Scop cuts each face into triangles.
+A Face is a polygon made of vertices and it is retrieved from the .obj. Unlike a triangle, it can have more than 3 vertices.
 
 **Triangle :**
-Triangles are the building blocks of 3D modelling. Nowadays GPUs are optimized for rendering triangles because of their simplicity. Besides, a triangle is necessarily flat and convex whereas a quadrilateral may not be.
+Triangles are the building blocks of 3D modelling. Nowadays GPUs are optimized for rendering triangles because of their simplicity.
 
 **Mesh :**
 A polygon mesh is a collection of vertices and faces that defines the shape of an object's surface. Accordingly, a mesh represents only the surface hence the "hollowness" of the meshes.
 
 **Normal :**
-In geometry, the normal is the perpendicular vector of a surface. In scop, normals are used for knowing the orientation of a face and so, knowing how to flatten the face to avoid graphical artefact, but also to apply a texture (only in box mapping mode).
+In geometry, the normal is the perpendicular vector of a surface. In scop, normals are used for knowing the orientation of a face, but also to apply a texture.
 
 #### Painting it
 
 **Texture :**
-A texture is simply a grid of numbers stored in the GPU's memory. It tells what colors are in the grid by storing Red, Green, Blue and Alpha channels (RGBA) per pixel. The value of each channel can go from 0 to 255. However, the alpha channel isn't provided by the .ppm file so we give it 255 (opaque). Each Vertex stores the position on the image, called UV coordinates.
+A texture is simply a grid of numbers stored in the GPU's memory. It tells what colors are in the grid by storing Red, Green, Blue and Alpha channels (RGBA) per pixel.
 
 **UV coordinates :**
-To tell how a Texture must be applied on a Triangle, the GPU needs coordinates, which are called UV coordinates. They are a position on the image, hence the U and V instead of X and Y, which are used for world coordinates. They range from (0, 0), the upper left of the texture, to (1, 1), the lower right. If the coordinates go beyond 1, the texture just repeats itself.
+To tell how a Texture must be applied on a Triangle, the GPU needs coordinates, which are called UV coordinates. They are a position on the image, hence the U and V instead of X and Y, which are used for world coordinates.
 
 **Shader :**
-A shader is a program executed by the GPU. It needs to be compiled before it can be used. We compile 2 distinct shaders : shader.vert, which computes the position of a vertex, and shader.frag, which computes how a pixel will be rendered. Both are compiled into .spv files which are loaded by Vulkan. The execution of shaders varies from zero to millions of times per frame : shader.vert is executed once per vertex and shader.frag is executed once per pixel.
+A shader is a program executed by the GPU. We compile 2 distinct shaders : shader.vert, which computes the position of a vertex, and shader.frag, which computes how a pixel will be rendered.
 
 #### Placing it
 
 **Matrix :**
-In mathematics, a matrix is simply a grid composed of numbers. In scop, and in 3D modelling in general, it can tell the position, the rotation, the scale or to project a perspective of an object in the world. Multiplying several matrices together transforms the first matrix into an other, describing movement in a 3D world.
+In mathematics, a matrix is simply a grid composed of numbers. In scop, and in 3D modelling in general, it can tell the position, the rotation, the scale or to project a perspective of an object in the world.
 
 **Perspective :**
-To give an object the impression of distance with the camera that perceives it, we introduce the perspective matrix. It has 4 major parameters : fovy, aspect, near and far. Fovy is the vertical field of view, aspect is the width/height ratio of the window, near is the minimum distance from the camera where things are rendered and far is the maximum distance before they stop being rendered.
+To give an object the impression of distance with the camera that perceives it, we introduce the perspective matrix.
 
 #### Showing it
 
@@ -173,7 +173,7 @@ Vulkan is an API (Application Programming Interface) that communicates directly 
 A frame is one image rendered to the screen. Scop displays on average 60 frames per second (FPS) but this value varies with the refresh rate of your screen.
 
 **Swapchain :**
-The swapchain is essentially a queue of images that are waiting to be presented on the screen. We need to allow multiple images in the queue to avoid tearing and visual artefacts. The swapchain makes sure that an image is fully rendered before displaying it on the screen. We also need to recreate it when the window is resized.
+The swapchain is essentially a queue of images that are waiting to be presented on the screen. The swapchain makes sure that an image is fully rendered before displaying it on the screen.
 
 ### Why this README
 
@@ -420,7 +420,9 @@ In the code:
 
 #### 3. Triangulation: fan, then ear clipping
 
-<!-- TODO(Theo): En une phrase : comment découper une face à plusieurs coins en triangles sans déborder à l'extérieur ? -->
+Before drawing, Scop cuts each face into triangles. A triangle is necessarily flat and convex whereas a quadrilateral may not be. Normals are used for knowing the orientation of a face and so, knowing how to flatten the face to avoid graphical artefacts.
+
+<!-- TODO(Theo): Il manque le « comment », en une phrase : comment découper une face à plusieurs coins en triangles sans déborder à l'extérieur ? -->
 
 - **Fan** (before commit `cb4ef8b`): triangles `(v0, vi, vi+1)` for `i` from 1 to `n − 2`.
 - **Ear clipping** (current version): `triangulate_face` in `src/obj.rs`.
@@ -447,14 +449,16 @@ Screenshots from Scop:
      Questions pour t'aider :
      - Qu'est-ce qu'une « oreille » ? Pourquoi enlever une oreille ne casse-t-il jamais le reste du polygone ?
      - Pourquoi les triangles 2 et 3 de l'éventail débordent-ils dans l'encoche ? Qu'a de spécial le sommet 1 ?
-     - Pourquoi projeter la face en 2D avant de chercher les oreilles ?
+     - Pourquoi projeter la face en 2D avant de chercher les oreilles ? (Le « comment », avec la normale, est en haut de la section ; il manque le « pourquoi » : quels tests ont besoin d'une face en 2D ?)
      - Quand le repli en éventail peut-il arriver ?
      Fichiers à relire : src/obj.rs (triangulate_face, project_face_2d, cross_2d, is_convex, is_in_triangle), resources/model/concave_test.obj
 -->
 
 #### 4. From the file to the screen: the matrices
 
-<!-- TODO(Theo): En une phrase : quelles matrices amènent un point du fichier .obj à sa place sur l'écran ? -->
+Multiplying several matrices together combines them into a single one, describing all the movements of an object in a 3D world.
+
+<!-- TODO(Theo): Il manque, en une phrase : quelles matrices amènent un point du fichier .obj à sa place sur l'écran ? -->
 
 <p align="center">
   <img src="docs/diagrams/matrix-chain.svg" alt="From model space to a pixel: model, view and projection matrices, then the division by w" width="860">
@@ -518,6 +522,8 @@ In the code:
 - Present mode: `MAILBOX` if available, otherwise `FIFO`.
 - A redraw is requested on every `AboutToWait` event; nothing is drawn while the window is minimised.
 
+The swapchain needs to allow multiple images in the queue to avoid tearing and visual artefacts.
+
 <!-- TODO(Theo): Explique la synchronisation d'une frame.
      Questions pour t'aider :
      - Quelle différence entre une fence et un sémaphore ? (la légende de la figure donne un indice)
@@ -531,7 +537,9 @@ In the code:
 
 #### 7. Shaders and push constants
 
-<!-- TODO(Theo): En une phrase : que calculent les deux shaders, et comment le CPU leur envoie-t-il de petites valeurs à chaque frame ? -->
+The execution of shaders varies from zero to millions of times per frame : `shader.vert` is executed once per vertex and `shader.frag` is executed once per pixel.
+
+<!-- TODO(Theo): Ta phrase dit combien de fois chaque shader tourne. Il manque, en une phrase : que calculent les deux shaders, et comment le CPU leur envoie-t-il de petites valeurs à chaque frame ? -->
 
 **Push constants** (72 bytes, two ranges: vertex `[0, 64)`, fragment `[64, 72)`):
 
@@ -590,6 +598,8 @@ outColor = vec4(mix(texture(texSampler, fragTexCoord).rgb, vec3(shade), pcs.mesh
 - Sampler: `LINEAR` filtering, address mode `REPEAT` on U, V, W, anisotropy 16.
 - Textures: every `.ppm` file in `resources/texture/`, sorted by name; `←`/`→` go through them with a modulo.
 
+UV coordinates range from (0, 0), the upper left of the texture, to (1, 1), the lower right. If the coordinates go beyond 1, the texture just repeats itself.
+
 **UV coordinates** (`build_vertex` in `src/model.rs`):
 
 | Case | UV |
@@ -611,11 +621,11 @@ outColor = vec4(mix(texture(texSampler, fragTexCoord).rgb, vec3(shade), pcs.mesh
 <!-- TODO(Theo): Explique le chargement de la texture, puis les deux stratégies d'UV : projection plane d'abord, box mapping ensuite.
      Questions pour t'aider :
      - Qu'est-ce qu'une mipmap ? Que verrait-on sans, quand le modèle est loin ?
-     - Que fait le mode REPEAT quand u vaut 2.5 ? À quoi sert TEXTURE_ZOOM ?
+     - À quoi sert TEXTURE_ZOOM ?
      - Projection plane : pourquoi la texture s'étire-t-elle sur la tranche du logo 42 ?
      - Box mapping : comment choisir l'axe d'un triangle à partir de sa normale ? Pourquoi réutiliser la même fonction que pour l'ear clipping ?
      - Pourquoi un même sommet peut-il avoir deux UV différentes ? Pourquoi l'axe entre-t-il dans la clé de déduplication, sauf pour les sommets qui ont un vt ?
-     - Pourquoi 1 − v pour les vt du fichier ?
+     - Pourquoi 1 − v pour les vt du fichier ? (L'origine en haut à gauche est écrite plus haut ; il manque celle du format .obj et le lien entre les deux.)
      Fichiers à relire : src/ppm.rs, src/vulkan/texture.rs, src/model.rs (build_vertex, load_model)
 -->
 
@@ -758,6 +768,8 @@ t x z - s y & t y z + s x & t z^2 + c & 0 \\
 <p align="center">
   <img src="docs/diagrams/perspective.svg" alt="Side view of the perspective frustum: two objects of the same height, the far one projects closer to the centre" width="860">
 </p>
+
+The perspective matrix has 4 major parameters : fovy, aspect, near and far. Fovy is the vertical field of view, aspect is the width/height ratio of the window, near is the minimum distance from the camera where things are rendered and far is the maximum distance before they stop being rendered.
 
 Perspective (`perspective(fovy, aspect, near, far)`), with `f = cot(fovy / 2)`:
 
@@ -979,6 +991,8 @@ orientation = orientation \times R(\widehat{axis},\; 50^\circ/s \cdot dt)
 -->
 
 #### Precompiled `.spv` committed, `glslc` optional
+
+Shaders need to be compiled before they can be used. `shader.vert` and `shader.frag` are compiled into `.spv` files which are loaded by Vulkan.
 
 **In the code:** `shaders/compile.sh` uses `glslc` from `PATH` or `~/.local/bin`; otherwise it keeps the committed `vert.spv` / `frag.spv`, and fails only if they are missing (commit `d9b0936`).
 
