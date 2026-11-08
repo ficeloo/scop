@@ -151,16 +151,12 @@ A texture is simply a grid of numbers stored in the GPU's memory. It tells what 
 To tell how a Texture must be applied on a Triangle, the GPU needs coordinates, which are called UV coordinates. They are a position on the image, hence the U and V instead of X and Y, which are used for world coordinates. They range from (0, 0), the upper left of the texture, to (1, 1), the lower right. If the coordinates go beyond 1, the texture just repeats itself.
 
 **Shader :**
-A shader is a program executed by the GPU. It needs to be compiled before it can be used. We compile 2 distinct shaders : shader.vert, which computes the poosition of a vertex, shader.frag, which computes how a pixel will be rendered. Both are compiled into .spv files which is loaded by Vulkan. The execution of shaders varies from zero to millions of times per frame : shader.vert is executed once per vertex and shader.frag is executed once per pixel.
+A shader is a program executed by the GPU. It needs to be compiled before it can be used. We compile 2 distinct shaders : shader.vert, which computes the position of a vertex, and shader.frag, which computes how a pixel will be rendered. Both are compiled into .spv files which are loaded by Vulkan. The execution of shaders varies from zero to millions of times per frame : shader.vert is executed once per vertex and shader.frag is executed once per pixel.
 
 #### Placing it
 
-**Matrix**
-<!-- Questions pour t'aider :
-     - Qu'est-ce qu'une matrice 4×4 « fait » à un point ?
-     - Pourquoi est-ce pratique de multiplier plusieurs matrices entre elles ?
-     Fichiers à relire : src/math.rs (Matrix4)
--->
+**Matrix :**
+In mathematics, a matrix is simply a grid composed of numbers. In scop, and in 3D modelling in general, it can tell the position, the rotation, the scale or to project a perspective of an object in the world. Multiplying several matrices together transforms the first matrix into an other, describing movement in a 3D world.
 
 **Perspective**
 <!-- Questions pour t'aider :
