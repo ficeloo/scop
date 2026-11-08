@@ -177,13 +177,9 @@ The swapchain is essentially a queue of images that are waiting to be presented 
 
 ### Why this README
 
-<!-- TODO(Theo): 2 ou 3 phrases, à la première personne.
-     Questions pour t'aider :
-     - Le projet a duré plusieurs mois : qu'est-ce que ce README t'aide à faire (t'approprier le code, réviser pour la soutenance) ?
-     - Pourquoi as-tu tenu à écrire toutes les explications toi-même ?
--->
+This project is my first foray into 3D development. Using Vulkan is a long-term endeavour, and many of the concepts needed to fully understand how Scop works can sometimes be difficult to grasp. As well as providing a detailed account of Scop’s development, this README helps me to fully understand the code and the mechanisms behind this project. I was able to complete this project by following Kyle Mayes’ tutorial, and it was by adding my personal touches and writing this README that I came to understand the project in depth.
 
----
+****
 
 ## Instructions
 
@@ -279,7 +275,7 @@ All rules accept `MODE=dev` (default) or `MODE=release`.
 
 </details>
 
----
+****
 
 ## Features
 
