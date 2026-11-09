@@ -195,9 +195,7 @@ Scop opens `resources/model/42.obj`. `Enter` opens another model, `M` switches t
 
 ### Controls
 
-Keys are read by their **physical position**, named after a QWERTY layout. On an AZERTY keyboard, `W` is the `Z` key, `A` is `Q`, `Q` is `A`.
-
-<!-- TODO(Theo): Vérifie les équivalents AZERTY sur ton clavier (W/A/Q, et aussi = / - / 1 2 3 / 0) et corrige la phrase au-dessus si besoin. -->
+Keys are read by their **physical position**, named after a QWERTY layout.
 
 **Hold a key** (several at once is fine):
 
@@ -210,8 +208,6 @@ Keys are read by their **physical position**, named after a QWERTY layout. On an
 | `U` / `O` | Rotate the model around its own X axis |
 | `I` / `K` | Rotate the model around its own Y axis |
 | `L` / `J` | Rotate the model around its own Z axis |
-
-<!-- TODO(Theo): Remplace « +forward / −right… » par ce que l'utilisateur voit à l'écran (plus près, plus loin, à gauche, à droite…) après avoir testé chaque touche. -->
 
 **Press a key** (one action per press):
 
@@ -235,12 +231,6 @@ Keys are read by their **physical position**, named after a QWERTY layout. On an
 | GPU features `samplerAnisotropy` and `geometryShader` | Yes | Requested when the logical device is created. |
 | Validation layers (`VK_LAYER_KHRONOS_validation`) | Only for `MODE=dev` | Without them, a debug build stops with `Validation layer requested but not supported.` |
 | `glslc` (shader compiler) | No | Without it, the committed `shaders/*.spv` are used. |
-
-<!-- TODO(Theo): Explique ce dont le sélecteur de fichiers (crate rfd) a besoin sous Linux / sur les postes de 42, s'il y a quelque chose.
-     Questions pour t'aider :
-     - As-tu testé `Enter` sur un poste de 42 ? Que faut-il d'installé pour que la fenêtre de sélection s'ouvre ?
-     Fichiers à relire : src/key.rs (file_manager), Cargo.toml
--->
 
 ### Build options
 
@@ -286,20 +276,20 @@ All rules accept `MODE=dev` (default) or `MODE=release`.
 
 ### Mandatory part
 
-- **Home-made `.obj` loader**: <!-- TODO(Theo): une phrase. Faits : positions, UV, normales, faces, indices négatifs, erreurs avec numéro de ligne. src/obj.rs -->
-- **Perspective 3D view**: <!-- TODO(Theo): une phrase. Faits : perspective + depth buffer. src/math.rs, src/vulkan/attachment.rs -->
-- **Rotation around the object's centre**: <!-- TODO(Theo): une phrase. Faits : centre de la bounding box, taille ramenée à TARGET_SIZE = 1.5. src/model.rs, src/obj.rs (compute_centroid) -->
-- **Translation on the 3 axes, both ways**: <!-- TODO(Theo): une phrase. src/key.rs (move_model), src/app/render.rs -->
-- **Faces in shades of grey**: <!-- TODO(Theo): une phrase. Faits : 8 gris, un par triangle, via gl_PrimitiveID. shaders/shader.frag -->
-- **Texture toggle with a smooth transition (`M`)**: <!-- TODO(Theo): une phrase. Faits : mix, environ 0,2 s. shaders/shader.frag, src/app/render.rs (mesh_view_value) -->
-- **Home-made `.ppm` texture loader**: <!-- TODO(Theo): une phrase. Faits : P6 seulement. src/ppm.rs -->
-- **Generated texture coordinates**: <!-- TODO(Theo): une phrase. Faits : projection plane quand le .obj n'a pas de vt. src/model.rs (build_vertex, load_model) -->
-- **Home-made math library**: <!-- TODO(Theo): une phrase. Faits : vecteurs, matrices 4×4, perspective, look-at, rotation autour d'un axe. src/math.rs -->
+- **Home-made `.obj` loader**: Retrieves the information from `.obj` files (positions, UVs, normals, faces, negative indices) and builds a model the program can read, or stops with an error giving the malformed line number.
+- **Perspective 3D view**: Handles the perspective of the loaded model by making it appear bigger or smaller based on the camera-to-object distance, and a depth buffer hides the faces that are behind others.
+- **Rotation around the object's centre**: The object rotates around its own center, computed as the center of its bounding box, and spins automatically around one axis (Z).
+- **Translation on the 3 axes, both ways**: The object can also move by translation on 3 axes : X, Y and Z, using the appropriate keys.
+- **Faces in shades of grey**: Each triangle gets one of 8 shades of grey, picked from its index (`gl_PrimitiveID`).
+- **Texture toggle with a smooth transition (`M`)**: By using the `mix` function, we create a smooth transition when toggling the texture, which takes about 0.2 second in Scop.
+- **Home-made `.ppm` texture loader**: I used `.ppm` files for their simplicity. Only P6 `.ppm` files are accepted.
+- **Generated texture coordinates**: When an `.obj` file doesn't explicitly give its texture coordinates, I generate them with a planar projection.
+- **Home-made math library**: Vectors, 4×4 matrices, perspective, look-at and rotation around an axis. Most of it comes from the cgmath source code, tweaked to be in line with what Scop needs.
 
 ### Bonus
 
-- **Ear clipping triangulation**: <!-- TODO(Theo): une phrase. Faits : faces concaves et non planes, normale de Newell, projection 2D, repli en éventail. src/obj.rs (triangulate_face, project_face_2d) -->
-- **Box mapping**: <!-- TODO(Theo): une phrase. Faits : axe de projection choisi par triangle selon sa normale, clé de déduplication (FaceVertex, axes), bascule avec la touche KEY. src/model.rs (load_model), src/obj.rs (get_normal_axis_max) -->
+- **Ear clipping triangulation**: To render concave or non-coplanar `.obj` faces, I use Newell's normal to flatten each face in 2D, then find an "ear": 3 consecutive vertices forming a convex angle (< 180°) with no other vertex inside their triangle. I clip it and do it again until only 3 vertices are left. Unlike a simple fan, it works on concave faces. If no ear is found, it falls back to a fan.
+- **Box mapping**: To avoid texture stretching when the `.obj` has no UVs, I used box mapping. Instead of projecting the texture along a single axis, each triangle is textured along the axis its normal points to the most, so the texture looks right in every direction (toggle with `N`).
 
 ### Extras
 
@@ -321,7 +311,7 @@ All rules accept `MODE=dev` (default) or `MODE=release`.
 
 </details>
 
----
+****
 
 ## Technical overview
 
