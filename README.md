@@ -341,12 +341,8 @@ The Vulkan part of Scop comes from the [Vulkan Tutorial (Rust) by Kyle Mayes](ht
 | File picker, texture switching | Mine | `src/key.rs` |
 | Makefile, `shaders/compile.sh` | Mine (with AI help, see [AI usage](#ai-usage)) | `Makefile`, `shaders/compile.sh` |
 
-<!-- TODO(Theo): Vérifie la colonne « Origin » ligne par ligne (elle vient de scop_requirements.txt), puis écris 2 ou 3 phrases :
-     Questions pour t'aider :
-     - Qu'as-tu appris en suivant le tuto, et qu'as-tu appris en le quittant ?
-     - Qu'as-tu dû corriger dans le code du tuto (bugs 3 à 9) ?
-     - Quelle partie « à moi » t'a demandé le plus de travail ?
--->
+This tutorial was a tremendous help: if you are following my README to understand how Vulkan works in Rust, do me a favour and go check out Kyle Mayes's one first.  
+Unfortunately (or fortunately), this tutorial doesn't do everything the Scop project asks for, so I had to figure out some parts on my own, like parsing a `.obj` file, which, believe it or not, helped me a lot to understand how a model is rendered on the screen.
 
 ### How it works
 
