@@ -7,6 +7,17 @@ Qui écrit quoi :
     (valeurs, tableaux, formules recopiées du code, noms de fichiers).
   - Toutes les explications (le « comment ça marche » et le « pourquoi ») sont à toi : ce sont les TODO(Theo).
 
+Comment remplir un TODO(Theo) (méthode depuis le 2026-11-16) :
+  1. Réponds aux questions DANS le commentaire du TODO, en puces, en français, sans soigner le style.
+     Une réponse courte suffit, mais chaque question doit avoir sa réponse : c'est là que tu apprends.
+  2. Dis à Claude « TODO X rempli ». Claude vérifie le fond, signale les vraies erreurs,
+     puis écrit le texte anglais à partir de TES idées (rien d'autre), et supprime le TODO.
+  Taille attendue du texte final :
+  - « How it works » : UN paragraphe par section (3 à 6 lignes).
+  - « The math behind Scop » : 1 à 2 lignes sous chaque formule.
+  - « Technical choices » : une ligne de tableau par choix.
+  - « Bugs & lessons learned » : une ligne « Lesson » par bug.
+
 Deux niveaux de lecture :
   - Description, Instructions, Features : pour quelqu'un qui n'a jamais fait de 3D.
     Aucun nom de fonction, aucun mot technique qui ne soit pas dans « Words to know ».
@@ -19,7 +30,6 @@ Pour que ce soit digeste :
   - Le pourquoi d'abord, le comment ensuite.
   - Sous chaque schéma : une phrase qui dit quoi regarder, puis le détail.
   - Un exemple concret vaut mieux qu'une définition (teapot.obj, le « L » de concave_test.obj…).
-  - Écris en anglais simple : tu peux rédiger en français d'abord, puis traduire toi-même.
   - La Description doit se lire en 5 minutes : environ 400 à 600 mots en tout.
 -->
 
@@ -59,6 +69,7 @@ Pour que ce soit digeste :
     [7. Shaders](#7-shaders-and-push-constants)  
     [8. Textures](#8-textures-and-uv-coordinates)  
     [9. Keyboard](#9-keyboard-input-movement-and-rotation)  
+    [10. Depth buffer and MSAA](#10-hiding-faces-and-smoothing-edges-depth-buffer-and-msaa)  
   - [The math behind Scop](#the-math-behind-scop)
   - [Technical choices](#technical-choices)
   - [Bugs & lessons learned](#bugs--lessons-learned)
@@ -121,9 +132,6 @@ The newly created image is then placed in a **Swapchain** and rendered directly 
 Our exquisite model is rendered in real time before your beautiful eyes !
 
 ### Words to know
-
-<!-- TODO(Theo): Pour chaque mot : une ou deux phrases, sans jargon, avec si possible une analogie de la vie courante. -->
-<!--      Test : un ami qui n'a jamais fait de 3D comprendrait-il ta phrase sans lire les autres ? -->
 
 #### The object
 
@@ -269,11 +277,6 @@ All rules accept `MODE=dev` (default) or `MODE=release`.
 
 ## Features
 
-<!-- TODO(Theo): Après chaque nom de fonctionnalité, écris UNE phrase qui dit ce que l'utilisateur voit ou peut faire.
-     Pas de nom de fonction ici : les détails sont dans Technical overview.
-     Le commentaire de chaque ligne te rappelle les faits et le fichier à relire.
--->
-
 ### Mandatory part
 
 - **Home-made `.obj` loader**: Retrieves the information from `.obj` files (positions, UVs, normals, faces, negative indices) and builds a model the program can read, or stops with an error giving the malformed line number.
@@ -294,20 +297,18 @@ All rules accept `MODE=dev` (default) or `MODE=release`.
 ### Extras
 
 <details>
-<summary><b>12 features added on top of the subject</b></summary>
+<summary><b>10 features added on top of the subject</b></summary>
 
-- **File picker (`Enter`)**: <!-- TODO(Theo): une phrase. Faits : crate rfd, charge un autre .obj sans redémarrer. src/key.rs (file_manager), src/app/render.rs (reload_model) -->
-- **Texture switching (`←` / `→`)**: <!-- TODO(Theo): une phrase. Faits : tous les .ppm de resources/texture/. src/key.rs (change_texture_index), src/vulkan/texture.rs (init_texture_path) -->
-- **Choice of the UV projection axes (`1`, `2`, `3`)**: <!-- TODO(Theo): une phrase. Faits : mode projection plane uniquement. src/model.rs (tex_axe), src/main.rs (Signal::TextureAxe) -->
-- **Texture repetition**: <!-- TODO(Theo): une phrase. Faits : sampler REPEAT + TEXTURE_ZOOM (constante 1.0, pas de touche). src/vulkan/texture.rs, src/model.rs -->
-- **Adjustable rotation speed (`=` / `-` / `0`)**: <!-- TODO(Theo): une phrase. Faits : pas de 15°/s, limite ±720°/s. src/key.rs, src/main.rs (UpdateAngleSpeed) -->
-- **Manual rotation (`I` `K` `U` `O` `J` `L`)**: <!-- TODO(Theo): une phrase. Faits : 50°/s, autour des axes de l'objet. src/key.rs (rotate_model), src/app/render.rs (orientation) -->
-- **Sprint (`Left Shift`)**: <!-- TODO(Theo): une phrase. Faits : vitesse ×2. src/main.rs (BASE_SPEED, SPRINT_SPEED) -->
-- **Camera-relative movement**: <!-- TODO(Theo): une phrase. Faits : axes forward / right / up de la caméra. src/math.rs (camera_basis), src/app/render.rs -->
-- **MSAA**: <!-- TODO(Theo): une phrase. Faits : le plus grand nombre d'échantillons supporté par le GPU. src/vulkan/device.rs (get_max_msaa_samples), src/vulkan/attachment.rs -->
-- **Mipmaps**: <!-- TODO(Theo): une phrase. Faits : générées sur le GPU. src/vulkan/texture.rs (generate_mipmaps) -->
-- **Window resize and minimisation**: <!-- TODO(Theo): une phrase. Faits : recréation de la swapchain. src/main.rs (Resized), src/app.rs (recreate_swapchain) -->
-- **Debug messages in `MODE=dev`**: <!-- TODO(Theo): une phrase. Faits : validation layers, RUST_LOG. src/vulkan/instance.rs -->
+- **File picker (`Enter`)**: Thanks to the `rfd` crate, Scop can load a new `.obj` file without changing any code or restarting the program.
+- **Texture switching (`←` / `→`)**: The arrow keys cycle through every `.ppm` file in `resources/texture/`. Only the texture is reloaded, not the model.
+- **Choice of the UV projection axes (`1`, `2`, `3`)**: In planar projection, you can choose along which of the 3 main axes (X, Y or Z) the texture is projected.
+- **Texture repetition**: When a UV coordinate goes outside [0, 1], the texture repeats itself on the model instead of stretching its edges.
+- **Adjustable rotation speed (`=` / `-` / `0`)**: The rotation speed changes by steps of 15°/s, up to 720°/s in both directions, and the `0` key stops the rotation.
+- **Sprint (`Left Shift`)**: I added a sprint key that doubles the movement speed, for easier manipulation and visualization.
+- **Camera-relative movement**: The movement is always relative to the camera (forward, right, up), so the keys keep the same meaning whatever the camera looks at.
+- **MSAA**: Multisample anti-aliasing smooths the jagged edges of the model, using the highest sample count the GPU supports.
+- **Mipmaps**: Mipmapping pre-computes smaller copies of the texture on the GPU, so a far or small object is drawn without flickering (aliasing).
+- **Window resize and minimisation**: You can resize the window freely without visual artifacts: the swapchain is recreated at each resize, and rendering pauses while the window is minimized.
 
 </details>
 
@@ -351,20 +352,12 @@ The Vulkan part of Scop comes from the [Vulkan Tutorial (Rust) by Kyle Mayes](ht
 
 #### 1. The data pipeline
 
-<!-- TODO(Theo): En une phrase : comment un fichier texte devient-il des triangles stockés sur la carte graphique ? -->
-
 <p align="center">
   <img src="docs/diagrams/data-pipeline.svg" alt="The data pipeline on a square face: parse_obj, triangulate_face, load_model, staging buffer, cmd_draw_indexed" width="860">
 </p>
 
-In the code:
-
-- `TARGET_SIZE = 1.5`; a `FaceVertex` is the triplet of indices (position, `vt`, `vn`) of one corner.
-- The staging buffer lives in CPU-visible memory; its content is copied once to device-local memory.
-- The vertex and index buffers are rebuilt when another model is loaded (`Enter`), when the UV axes change (`1`/`2`/`3`), or when the texture mapping mode changes (`N`).
-
-<!-- TODO(Theo): Explique le pipeline étape par étape.
-     Questions pour t'aider :
+<!-- TODO(Theo): UN paragraphe. Réponds en puces, en français :
+     - En une phrase : comment un fichier texte devient-il des triangles stockés sur la carte graphique ?
      - Pourquoi ne pas envoyer directement les faces au GPU ? À quoi servent les indices ?
      - Pourquoi centrer et redimensionner le modèle ? Que se passerait-il avec teapot.obj sinon ?
      - Pourquoi réordonner les axes (x, y, z) en (z, x, y) ? (indice : UP = (0, 0, 1) dans render.rs)
@@ -372,9 +365,21 @@ In the code:
      Fichiers à relire : src/obj.rs, src/model.rs, src/vulkan/buffer.rs
 -->
 
+In the code:
+
+- `TARGET_SIZE = 1.5`; a `FaceVertex` is the triplet of indices (position, `vt`, `vn`) of one corner.
+- The staging buffer lives in CPU-visible memory; its content is copied once to device-local memory.
+- The vertex and index buffers are rebuilt when another model is loaded (`Enter`), when the UV axes change (`1`/`2`/`3`), or when the texture mapping mode changes (`N`).
+
 #### 2. The OBJ parser
 
-<!-- TODO(Theo): En une phrase : que lit le parser, et que rend-il ? -->
+<!-- TODO(Theo): UN paragraphe. Réponds en puces, en français :
+     - En une phrase : que lit le parser, et que rend-il ?
+     - Pourquoi lire en i32 puis convertir en usize ?
+     - Comment un indice négatif est-il résolu ? Pourquoi dépend-il de l'endroit où se trouve la ligne dans le fichier ?
+     - Que voit l'utilisateur si le fichier est faux, au démarrage et quand il charge un modèle avec Entrée ?
+     Fichiers à relire : src/obj.rs (resolve_index, parse_face_line), resources/model/42_bugged.obj
+-->
 
 | Line | Read as | Notes |
 | --- | --- | --- |
@@ -396,19 +401,18 @@ In the code:
 - Errors (`ObjError`): `MalformedLine` (line number + content), `InvalidIndex` (line number), `IoError`.
 - Test file: `resources/model/42_bugged.obj` has a malformed `v` line (line 6).
 
-<!-- TODO(Theo): Explique comment le parser fonctionne et comment il échoue.
-     Questions pour t'aider :
-     - Pourquoi lire en i32 puis convertir en usize ?
-     - Comment un indice négatif est-il résolu ? Pourquoi dépend-il de l'endroit où se trouve la ligne dans le fichier ?
-     - Que voit l'utilisateur si le fichier est faux, au démarrage et quand il charge un modèle avec Entrée ?
-     Fichiers à relire : src/obj.rs (resolve_index, parse_face_line), resources/model/42_bugged.obj
--->
-
 #### 3. Triangulation: fan, then ear clipping
 
 Before drawing, Scop cuts each face into triangles. A triangle is necessarily flat and convex whereas a quadrilateral may not be. Normals are used for knowing the orientation of a face and so, knowing how to flatten the face to avoid graphical artefacts.
 
-<!-- TODO(Theo): Il manque le « comment », en une phrase : comment découper une face à plusieurs coins en triangles sans déborder à l'extérieur ? -->
+<!-- TODO(Theo): UN paragraphe, à la suite du tien. Réponds en puces, en français, avec l'exemple du L :
+     - En une phrase : comment découper une face à plusieurs coins en triangles sans déborder à l'extérieur ?
+     - Qu'est-ce qu'une « oreille » ? Pourquoi enlever une oreille ne casse-t-il jamais le reste du polygone ?
+     - Pourquoi les triangles 2 et 3 de l'éventail débordent-ils dans l'encoche ? Qu'a de spécial le sommet 1 ?
+     - Pourquoi projeter la face en 2D ? Quels tests ont besoin d'une face en 2D ?
+     - Quand le repli en éventail peut-il arriver ?
+     Fichiers à relire : src/obj.rs (triangulate_face, project_face_2d, cross_2d, is_convex, is_in_triangle), resources/model/concave_test.obj
+-->
 
 - **Fan** (before commit `cb4ef8b`): triangles `(v0, vi, vi+1)` for `i` from 1 to `n − 2`.
 - **Ear clipping** (current version): `triangulate_face` in `src/obj.rs`.
@@ -431,20 +435,18 @@ Screenshots from Scop:
 | :---: | :---: |
 | ![concave_test.obj triangulated with a fan](docs/images/concave_fan.png) | ![concave_test.obj triangulated with ear clipping](docs/images/concave_earclip.png) |
 
-<!-- TODO(Theo): Explique l'ear clipping pas à pas, avec l'exemple du L.
-     Questions pour t'aider :
-     - Qu'est-ce qu'une « oreille » ? Pourquoi enlever une oreille ne casse-t-il jamais le reste du polygone ?
-     - Pourquoi les triangles 2 et 3 de l'éventail débordent-ils dans l'encoche ? Qu'a de spécial le sommet 1 ?
-     - Pourquoi projeter la face en 2D avant de chercher les oreilles ? (Le « comment », avec la normale, est en haut de la section ; il manque le « pourquoi » : quels tests ont besoin d'une face en 2D ?)
-     - Quand le repli en éventail peut-il arriver ?
-     Fichiers à relire : src/obj.rs (triangulate_face, project_face_2d, cross_2d, is_convex, is_in_triangle), resources/model/concave_test.obj
--->
-
 #### 4. From the file to the screen: the matrices
 
 Multiplying several matrices together combines them into a single one, describing all the movements of an object in a 3D world.
 
-<!-- TODO(Theo): Il manque, en une phrase : quelles matrices amènent un point du fichier .obj à sa place sur l'écran ? -->
+<!-- TODO(Theo): UN paragraphe, à la suite du tien. Réponds en puces, en français :
+     - En une phrase : quelles matrices amènent un point du fichier .obj à sa place sur l'écran ?
+     - Que représente chaque « space » du premier schéma ?
+     - Pourquoi le spin automatique doit-il venir en premier (second schéma) ?
+     - Que veut dire « column-major » ? Pourquoi faut-il la même convention que GLSL ?
+     (L'ordre A × B ≠ B × A et le w = 1 sont posés dans « The math behind Scop », pas ici.)
+     Fichiers à relire : src/math.rs, src/app/render.rs (update_uniform_buffer, update_secondary_command_buffer), shaders/shader.vert
+-->
 
 <p align="center">
   <img src="docs/diagrams/matrix-chain.svg" alt="From model space to a pixel: model, view and projection matrices, then the division by w" width="860">
@@ -462,18 +464,33 @@ Multiplying several matrices together combines them into a single one, describin
 
 The formulas of each matrix are in [The math behind Scop](#matrices).
 
-<!-- TODO(Theo): Explique la chaîne de matrices.
-     Questions pour t'aider :
-     - Que représente chaque « space » du schéma ?
-     - La figure donne l'ordre : pourquoi le spin automatique doit-il venir en premier ? Que se passerait-il si on inversait T et R ?
-     - Que veut dire « column-major » ? Pourquoi faut-il la même convention que GLSL ?
-     - Pourquoi un 4e composant w = 1 pour un point ?
-     Fichiers à relire : src/math.rs, src/app/render.rs (update_uniform_buffer, update_secondary_command_buffer), shaders/shader.vert
--->
-
 #### 5. Vulkan objects and their lifecycle
 
-<!-- TODO(Theo): En une phrase : quels objets Vulkan vivent tout le programme, lesquels doivent être reconstruits, et quand ? -->
+**What each object does**
+
+<!-- TODO(Theo): UNE ligne par objet dans la colonne « Role » (remplace les …). Réponds en français, Claude traduira.
+     Pour chaque objet : à quoi sert-il, et de quel autre objet a-t-il besoin pour être créé ?
+     C'est la question la plus probable en soutenance sur la partie Vulkan.
+     Fichiers à relire : src/app.rs (create), puis src/vulkan/*.rs dans l'ordre de création
+-->
+
+| Object | Role | Code |
+| --- | --- | --- |
+| Instance | … | `src/vulkan/instance.rs` |
+| Surface | … | `src/app.rs` (`create_surface`) |
+| Physical device | … | `src/vulkan/device.rs` |
+| Logical device and queues | … | `src/vulkan/device.rs` |
+| Swapchain and image views | … | `src/vulkan/swapchain.rs` |
+| Render pass | … | `src/vulkan/render_pass.rs` |
+| Pipeline and pipeline layout | … | `src/vulkan/pipeline.rs` |
+| Framebuffer | … | `src/vulkan/framebuffer.rs` |
+| Command pool and command buffer | … | `src/vulkan/command.rs` |
+| Descriptor set layout, pool and set | … | `src/vulkan/descriptor.rs` |
+| Buffer and device memory | … | `src/vulkan/buffer.rs`, `src/vulkan/memory.rs` |
+| Image, image view and sampler | … | `src/vulkan/image.rs`, `src/vulkan/texture.rs` |
+| Semaphore and fence | … | `src/vulkan/sync.rs` |
+
+**When each object is created and destroyed**
 
 | Group | Objects | Rebuilt when | Code |
 | --- | --- | --- | --- |
@@ -481,8 +498,9 @@ The formulas of each matrix are in [The math behind Scop](#matrices).
 | **Swapchain** | swapchain + image views, render pass, pipeline + pipeline layout, MSAA colour image + depth image, framebuffers, uniform buffers, descriptor pool + sets, per-image command pools and command buffers, `render_finished` semaphores, `images_in_flight` | window resized or minimised, `OUT_OF_DATE_KHR`, `SUBOPTIMAL_KHR` | `recreate_swapchain`, `destroy_swapchain` |
 | **User request** | texture image + view, descriptor pool + sets | `←` / `→` | `reload_texture` |
 | | vertex buffer + index buffer | `Enter`, `1`, `2`, `3`, `N` | `reload_model` |
-<!-- TODO(Theo): Explique le rôle et la durée de vie des principaux objets Vulkan.
-     Questions pour t'aider :
+
+<!-- TODO(Theo): UN paragraphe sur la durée de vie. Réponds en puces, en français :
+     - En une phrase : quels objets vivent tout le programme, lesquels doivent être reconstruits, et quand ?
      - Pour chaque groupe : pourquoi ces objets-là dépendent-ils (ou pas) de la swapchain ?
      - Pourquoi la render pass et le pipeline sont-ils recréés avec la swapchain ?
      - Dans quel ordre détruire, et pourquoi ? Que fait device_wait_idle avant de détruire ?
@@ -492,11 +510,20 @@ The formulas of each matrix are in [The math behind Scop](#matrices).
 
 #### 6. Rendering one frame
 
-<!-- TODO(Theo): En une phrase : que se passe-t-il, dans l'ordre, entre « la fenêtre demande une nouvelle image » et « l'image est à l'écran » ? -->
-
 <p align="center">
   <img src="docs/diagrams/frame-sync.svg" alt="One frame on three lanes, CPU, GPU and presentation, with the fences and semaphores between them" width="1040">
 </p>
+
+<!-- TODO(Theo): UN paragraphe. Réponds en puces, en français :
+     - En une phrase : que se passe-t-il, dans l'ordre, entre « la fenêtre demande une nouvelle image » et « l'image est à l'écran » ?
+     - Quelle différence entre une fence et un sémaphore ? (la légende de la figure donne un indice)
+     - À quoi sert images_in_flight ? Quel problème évite-t-il quand il y a plus d'images que de frames en vol ?
+     - Pourquoi reset_fences juste avant queue_submit, et pas avant acquire_next_image_khr ?
+     - Pourquoi le mouvement est-il mis à jour à la fin de render ? Quand se voit-il à l'écran ?
+     - Primaire et secondaire : qui contient quoi ?
+     (« Pourquoi render_finished par image » est posée dans Technical choices, pas ici.)
+     Fichiers à relire : src/app/render.rs (render, update_command_buffer, update_secondary_command_buffer), src/vulkan/sync.rs, src/vulkan/command.rs
+-->
 
 In the code:
 
@@ -510,22 +537,20 @@ In the code:
 
 The swapchain needs to allow multiple images in the queue to avoid tearing and visual artefacts.
 
-<!-- TODO(Theo): Explique la synchronisation d'une frame.
-     Questions pour t'aider :
-     - Quelle différence entre une fence et un sémaphore ? (la légende de la figure donne un indice)
-     - Pourquoi image_available est-il indexé par frame, mais render_finished par image ?
-     - À quoi sert images_in_flight ? Quel problème évite-t-il quand il y a plus d'images que de frames en vol ?
-     - Pourquoi reset_fences juste avant queue_submit, et pas avant acquire_next_image_khr ?
-     - Pourquoi le mouvement est-il mis à jour à la fin de render ? Quand se voit-il à l'écran ?
-     - Primaire et secondaire : qui contient quoi ?
-     Fichiers à relire : src/app/render.rs (render, update_command_buffer, update_secondary_command_buffer), src/vulkan/sync.rs, src/vulkan/command.rs
--->
-
 #### 7. Shaders and push constants
 
 The execution of shaders varies from zero to millions of times per frame : `shader.vert` is executed once per vertex and `shader.frag` is executed once per pixel.
 
-<!-- TODO(Theo): Ta phrase dit combien de fois chaque shader tourne. Il manque, en une phrase : que calculent les deux shaders, et comment le CPU leur envoie-t-il de petites valeurs à chaque frame ? -->
+Shaders need to be compiled before they can be used. `shader.vert` and `shader.frag` are compiled into `.spv` files which are loaded by Vulkan.
+
+<!-- TODO(Theo): UN paragraphe, à la suite du tien. Réponds en puces, en français :
+     - En une phrase : que calculent les deux shaders, et comment le CPU leur envoie-t-il de petites valeurs à chaque frame ?
+     - Que fait le vertex shader pour chaque sommet ? Et le fragment shader pour chaque pixel ?
+     - Pourquoi des push constants pour la matrice model, mais un uniform buffer pour view et proj ?
+     - Pourquoi l'offset 64 dans le fragment shader (layout(offset = 64)) ?
+     (Les 8 gris et mix() sont posés dans « The math behind Scop », pas ici.)
+     Fichiers à relire : shaders/shader.vert, shaders/shader.frag, src/vulkan/pipeline.rs, src/app/render.rs
+-->
 
 **Push constants** (72 bytes, two ranges: vertex `[0, 64)`, fragment `[64, 72)`):
 
@@ -562,19 +587,17 @@ outColor = vec4(mix(texture(texSampler, fragTexCoord).rgb, vec3(shade), pcs.mesh
 - Alpha blending is on (`SRC_ALPHA`, `ONE_MINUS_SRC_ALPHA`).
 - The `.spv` files are embedded in the binary at compile time (`include_bytes!` in `src/vulkan/pipeline.rs`).
 
-<!-- TODO(Theo): Explique les shaders et les push constants.
-     Questions pour t'aider :
-     - Que fait le vertex shader pour chaque sommet ? Et le fragment shader pour chaque pixel ?
-     - Comment gl_PrimitiveID, mod et clamp donnent-ils 8 gris différents ? Pourquoi clamp entre 0.1 et 0.95 ?
-     - Que fait mix(a, b, t) quand t vaut 0, 0.5, 1 ? Pourquoi est-ce une transition « douce » ?
-     - Pourquoi des push constants pour la matrice model, mais un uniform buffer pour view et proj ?
-     - Pourquoi l'offset 64 dans le fragment shader (layout(offset = 64)) ?
-     Fichiers à relire : shaders/shader.vert, shaders/shader.frag, src/vulkan/pipeline.rs, src/app/render.rs
--->
-
 #### 8. Textures and UV coordinates
 
-<!-- TODO(Theo): En une phrase : comment une image finit-elle « peinte » sur le modèle, même quand le .obj ne donne pas de coordonnées de texture ? -->
+<!-- TODO(Theo): UN paragraphe. Réponds en puces, en français :
+     - En une phrase : comment une image finit-elle « peinte » sur le modèle, même quand le .obj ne donne pas de coordonnées de texture ?
+     - Qu'est-ce qu'une mipmap ? Que verrait-on sans, quand le modèle est loin ?
+     - Projection plane : pourquoi la texture s'étire-t-elle sur la tranche du logo 42 ? Comment le box mapping corrige-t-il ça ?
+     - Pourquoi 1 − v pour les vt du fichier ? (L'origine en haut à gauche est écrite plus bas ; il manque celle du format .obj et le lien entre les deux.)
+     - À quoi sert TEXTURE_ZOOM ?
+     (Le choix de l'axe par la normale est posé dans « The math behind Scop », la clé de déduplication dans « Technical choices ».)
+     Fichiers à relire : src/ppm.rs, src/vulkan/texture.rs, src/model.rs (build_vertex, load_model)
+-->
 
 **Loading** (`src/ppm.rs`, `src/vulkan/texture.rs`):
 
@@ -604,24 +627,20 @@ UV coordinates range from (0, 0), the upper left of the texture, to (1, 1), the 
 | :---: | :---: |
 | ![42 logo with planar projection](docs/images/42_planar.png) | ![42 logo with box mapping](docs/images/42_boxmapping.png) |
 
-<!-- TODO(Theo): Explique le chargement de la texture, puis les deux stratégies d'UV : projection plane d'abord, box mapping ensuite.
-     Questions pour t'aider :
-     - Qu'est-ce qu'une mipmap ? Que verrait-on sans, quand le modèle est loin ?
-     - À quoi sert TEXTURE_ZOOM ?
-     - Projection plane : pourquoi la texture s'étire-t-elle sur la tranche du logo 42 ?
-     - Box mapping : comment choisir l'axe d'un triangle à partir de sa normale ? Pourquoi réutiliser la même fonction que pour l'ear clipping ?
-     - Pourquoi un même sommet peut-il avoir deux UV différentes ? Pourquoi l'axe entre-t-il dans la clé de déduplication, sauf pour les sommets qui ont un vt ?
-     - Pourquoi 1 − v pour les vt du fichier ? (L'origine en haut à gauche est écrite plus haut ; il manque celle du format .obj et le lien entre les deux.)
-     Fichiers à relire : src/ppm.rs, src/vulkan/texture.rs, src/model.rs (build_vertex, load_model)
--->
-
 #### 9. Keyboard input, movement and rotation
-
-<!-- TODO(Theo): En une phrase : comment une touche maintenue devient-elle un déplacement ou une rotation fluide du modèle ? -->
 
 <p align="center">
   <img src="docs/diagrams/key-input.svg" alt="How a key event is handled: movement keys go to pressed_keys, Left Shift changes the speed, other keys return a Signal; every frame, the held keys move and rotate the model" width="900">
 </p>
+
+<!-- TODO(Theo): UN paragraphe. Réponds en puces, en français :
+     - En une phrase : comment une touche maintenue devient-elle un déplacement ou une rotation fluide du modèle ?
+     - Pourquoi un HashSet de touches enfoncées au lieu de réagir à chaque événement « pressed » ?
+     - Pourquoi normaliser world_dir ? Que se passe-t-il avec W et D enfoncées en même temps ?
+     - Multiplier orientation à droite ou à gauche : quelle différence entre les axes de l'objet et ceux du monde ?
+     (« Pourquoi multiplier par dt » est posée dans « The math behind Scop », pas ici.)
+     Fichiers à relire : src/main.rs, src/key.rs, src/app/render.rs (render), src/math.rs (camera_basis)
+-->
 
 In the code:
 
@@ -629,14 +648,29 @@ In the code:
 - The rotation is multiplied **on the right** of `orientation`.
 - Automatic rotation: `curr_angle` starts at −90°, `ang_vel` starts at 0.
 
-<!-- TODO(Theo): Explique le système d'entrées.
-     Questions pour t'aider :
-     - Pourquoi un HashSet de touches enfoncées au lieu de réagir à chaque événement « pressed » ?
-     - Pourquoi multiplier par dt ? Que se passerait-il sur un écran à 144 Hz sinon ?
-     - Pourquoi normaliser world_dir ? Que se passe-t-il avec W et D enfoncées en même temps ?
-     - Multiplier orientation à droite ou à gauche : quelle différence entre les axes de l'objet et ceux du monde ?
-     Fichiers à relire : src/main.rs, src/key.rs, src/app/render.rs (render), src/math.rs (camera_basis)
+#### 10. Hiding faces and smoothing edges: depth buffer and MSAA
+
+<!-- TODO(Theo): UN paragraphe. Réponds en puces, en français :
+     - En une phrase : comment le GPU sait-il qu'une face est cachée derrière une autre ?
+     - Que contient le depth buffer pour chaque pixel ? Pourquoi le vider à 1.0 au début de chaque frame, et pourquoi LESS ?
+     - Que verrait-on sans depth buffer sur teapot.obj (le bec et la poignée) ?
+     - MSAA : que veut dire « plusieurs échantillons par pixel » ? Pourquoi faut-il une 3e image (resolve) pour l'afficher ?
+     - Pourquoi l'image de profondeur doit-elle avoir le même nombre d'échantillons que l'image de couleur ?
+     Fichiers à relire : src/vulkan/attachment.rs, src/vulkan/render_pass.rs, src/vulkan/pipeline.rs (depth_stencil_state), src/vulkan/device.rs (get_max_msaa_samples)
 -->
+
+The render pass draws into three images:
+
+| Attachment | Format | Samples | After the render pass |
+| --- | --- | --- | --- |
+| 0: colour | swapchain format | `msaa_samples` | resolved into attachment 2 |
+| 1: depth | first supported of `D32_SFLOAT`, `D32_SFLOAT_S8_UINT`, `D24_UNORM_S8_UINT` | `msaa_samples` | not kept (`DONT_CARE`) |
+| 2: resolve | swapchain format | 1 | presented (`PRESENT_SRC_KHR`) |
+
+- Depth test: `depth_test_enable(true)`, `depth_write_enable(true)`, `depth_compare_op(LESS)`.
+- Clear values at the start of each frame: colour `(0, 0, 0, 1)`, depth `1.0`.
+- `msaa_samples`: the highest count (64 down to 2) supported by **both** `framebuffer_color_sample_counts` and `framebuffer_depth_sample_counts`, otherwise 1.
+- The colour and depth images are recreated with the swapchain (they have its size).
 
 ### The math behind Scop
 
@@ -656,24 +690,14 @@ Every formula below is copied from the code. Matrices are written in rows, even 
 | | 2D cross product, convexity, point in triangle | `cross_2d`, `is_convex`, `is_in_triangle` | Mine |
 | | bounding box, centre, scale | `compute_bounding_box`, `compute_centroid`, `load_model` | Mine |
 | [Texture and shading](#texture-and-shading) | planar UV | `build_vertex` | Mine |
+| | box mapping axes | `load_model`, `get_normal_axis_max` | Mine |
 | | mip levels | `create_texture_image` | Tutorial |
 | | grey shade, `mix` | `shader.frag` | Mine (`mix` is GLSL) |
 | [Time and movement](#time-and-movement) | angle, position, orientation, transition | `src/main.rs`, `src/app/render.rs` | Mine |
 
-<!-- TODO(Theo): Vérifie la colonne « Origin ». Pour chaque formule plus bas, explique en 2 ou 3 phrases :
-     ce qu'elle calcule, pourquoi elle marche, et un petit exemple chiffré si possible.
+<!-- TODO(Theo): Vérifie la colonne « Origin ». Puis, sous chaque formule, réponds à son TODO en puces, en français :
+     1 à 2 lignes par formule (ce qu'elle calcule, pourquoi elle marche, un petit exemple chiffré si possible).
      C'est ta meilleure révision pour la soutenance. -->
-Box mapping (`load_model`), for a triangle `(a, b, c)`:
-
-```math
-n = (b - a) \times (c - a)
-\qquad
-k = \arg\max_i |n_i|
-```
-
-The two kept axes follow the same rule as the projection to 2D in [Geometry](#geometry): `((k+1) % 3, (k+2) % 3)` if `n_k ≥ 0`, otherwise swapped. The UV formula is then the planar one, with these two axes.
-
-<!-- TODO(Theo): Pourquoi le plus grand |n_i| ? Que se passerait-il sans l'échange des axes quand n_k < 0 (indice : texture en miroir) ? -->
 
 #### Vectors and camera
 
@@ -693,7 +717,7 @@ a \cdot b = a_x b_x + a_y b_y + a_z b_z
 a \times b = (a_y b_z - a_z b_y,\; a_z b_x - a_x b_z,\; a_x b_y - a_y b_x)
 ```
 
-<!-- TODO(Theo): Que mesure le produit scalaire ? Que donne le produit vectoriel de deux vecteurs (direction, sens) ? -->
+<!-- TODO(Theo), 1 à 2 lignes : Que mesure le produit scalaire ? Que donne le produit vectoriel de deux vecteurs (direction, sens) ? -->
 
 Camera frame (`camera_basis(dir, up)`):
 
@@ -701,7 +725,7 @@ Camera frame (`camera_basis(dir, up)`):
 f = \widehat{dir} \qquad s = \widehat{f \times up} \qquad u = s \times f
 ```
 
-<!-- TODO(Theo): Que représentent f, s et u ? Pourquoi u n'a-t-il pas besoin d'être normalisé ? -->
+<!-- TODO(Theo), 1 à 2 lignes : Que représentent f, s et u ? Pourquoi u n'a-t-il pas besoin d'être normalisé ? -->
 
 View matrix (`look_to_rh(eye, dir, up)`; `look_at_rh` calls it with `dir = center − eye`):
 
@@ -714,7 +738,7 @@ u_x & u_y & u_z & -\,eye \cdot u \\
 \end{pmatrix}
 ```
 
-<!-- TODO(Theo): Pourquoi les 3 premières lignes sont-elles les axes de la caméra ? À quoi sert la dernière colonne ? Pourquoi −f ? -->
+<!-- TODO(Theo), 1 à 2 lignes : Pourquoi les 3 premières lignes sont-elles les axes de la caméra ? À quoi sert la dernière colonne ? Pourquoi −f ? -->
 
 #### Matrices
 
@@ -724,7 +748,7 @@ u_x & u_y & u_z & -\,eye \cdot u \\
 
 Product (`impl Mul for Matrix4`): column `j` of `A × B` is `A × (column j of B)`.
 
-<!-- TODO(Theo): Pourquoi A × B ≠ B × A ? Qu'est-ce que ça change pour T × orientation × R_auto ? -->
+<!-- TODO(Theo), 1 à 2 lignes : Pourquoi A × B ≠ B × A ? Qu'est-ce que ça change pour T × orientation × R_auto (que se passerait-il si on inversait T et R) ? -->
 
 <p align="center">
   <img src="docs/diagrams/axis-angle.svg" alt="Rotation of v by an angle theta around a unit axis k, with the Rodrigues formula" width="860">
@@ -748,8 +772,8 @@ t x z - s y & t y z + s x & t z^2 + c & 0 \\
 \end{pmatrix}
 ```
 
-<!-- TODO(Theo): Pourquoi faut-il une matrice 4×4 pour une translation ? Vérifie R avec l'axe Z : retrouves-tu la rotation 2D classique ?
-     (Cette formule s'appelle la formule de Rodrigues.) -->
+<!-- TODO(Theo), 1 à 2 lignes : Pourquoi faut-il une matrice 4×4 pour une translation (et donc un 4e composant w = 1 pour un point) ?
+     Vérifie R avec l'axe Z : retrouves-tu la rotation 2D classique ? (Cette formule s'appelle la formule de Rodrigues.) -->
 
 <p align="center">
   <img src="docs/diagrams/perspective.svg" alt="Side view of the perspective frustum: two objects of the same height, the far one projects closer to the centre" width="860">
@@ -768,7 +792,7 @@ P = \begin{pmatrix}
 \end{pmatrix}
 ```
 
-<!-- TODO(Theo): D'où vient cot(fovy / 2) ? Pourquoi −1 sur la dernière ligne (que devient w) ? Pourquoi diviser par aspect ? -->
+<!-- TODO(Theo), 1 à 2 lignes : D'où vient cot(fovy / 2) ? Pourquoi −1 sur la dernière ligne (que devient w) ? Pourquoi diviser par aspect ? -->
 
 <p align="center">
   <img src="docs/diagrams/vulkan-correction.svg" alt="The correction matrix flips the y axis and maps depth from [-1, 1] to [0, 1]" width="860">
@@ -785,7 +809,7 @@ C = \begin{pmatrix}
 \end{pmatrix}
 ```
 
-<!-- TODO(Theo): À quoi sert chaque ligne (axe Y de Vulkan, profondeur entre 0 et 1 au lieu de −1 et 1) ? -->
+<!-- TODO(Theo), 1 à 2 lignes : À quoi sert chaque ligne (axe Y de Vulkan, profondeur entre 0 et 1 au lieu de −1 et 1) ? -->
 
 #### Geometry
 
@@ -803,7 +827,8 @@ n_z = \sum_i (x_i - x_{i+1})(y_i + y_{i+1})
 
 Projection to 2D: `k` = axis where `|n_k|` is largest. The 2D point is `(p[(k+1) % 3], p[(k+2) % 3])` if `n_k ≥ 0`, otherwise `(p[(k+2) % 3], p[(k+1) % 3])`.
 
-<!-- TODO(Theo): Pourquoi cette somme donne-t-elle une normale même pour une face non plane ? Pourquoi échanger les deux axes quand n_k < 0 ? -->
+<!-- TODO(Theo), 1 à 2 lignes : Pourquoi cette somme donne-t-elle une normale même pour une face non plane ?
+     Pourquoi échanger les deux axes quand n_k < 0 ? (indice : texture en miroir, et sens des sommets pour is_convex) -->
 
 <p align="center">
   <img src="docs/diagrams/cross-2d.svg" alt="The sign of cross(a, b, c): positive when the path turns left, negative when it turns right; three signs tell whether p is inside the triangle" width="860">
@@ -818,7 +843,7 @@ Projection to 2D: `k` = axis where `|n_k|` is largest. The 2D point is `(p[(k+1)
 - `is_convex(a, b, c)`: `cross(a, b, c) > 0`
 - `is_in_triangle(p, a, b, c)`: `cross(p, b, c) ≥ 0` and `cross(a, p, c) ≥ 0` and `cross(a, b, p) ≥ 0`
 
-<!-- TODO(Theo): Que veut dire le signe de cross(a, b, c) ? Pourquoi ≥ 0 (et pas > 0) dans is_in_triangle ? -->
+<!-- TODO(Theo), 1 à 2 lignes : Que veut dire le signe de cross(a, b, c) ? Pourquoi ≥ 0 (et pas > 0) dans is_in_triangle ? -->
 
 Centre and scale (`compute_bounding_box`, `compute_centroid`, `load_model`):
 
@@ -830,7 +855,7 @@ factor = \frac{TARGET\_SIZE}{\max(max - min)}
 pos = \big((z - c_z),\, (x - c_x),\, (y - c_y)\big) \times factor
 ```
 
-<!-- TODO(Theo): Pourquoi le centre de la boîte et pas la moyenne des sommets ? Que se passe-t-il si le modèle est plat (max − min = 0) ? -->
+<!-- TODO(Theo), 1 à 2 lignes : Pourquoi le centre de la boîte et pas la moyenne des sommets ? Que se passe-t-il si le modèle est plat (max − min = 0) ? -->
 
 #### Texture and shading
 
@@ -843,10 +868,23 @@ Planar UV (`build_vertex`), with `(y, x)` the two projection axes and `inv_exten
 ```math
 u = (p_x - min_x) \cdot inv\_extent_x \cdot ZOOM
 \qquad
-v = (1 - p_y - min_y) \cdot inv\_extent_y \cdot ZOOM
+v = 1 - (p_y - min_y) \cdot inv\_extent_y \cdot ZOOM
 ```
 
-<!-- TODO(Theo): Que valent u et v aux coins de la boîte ? (Voir aussi l'item « Possible bugs » sur la formule de v.) -->
+<!-- TODO(Theo), 1 à 2 lignes : Que valent u et v aux coins de la boîte ? Pourquoi « 1 − » devant v (même raison que le 1 − v des vt) ? -->
+
+Box mapping (`load_model`), for a triangle `(a, b, c)`:
+
+```math
+n = (b - a) \times (c - a)
+\qquad
+k = \arg\max_i |n_i|
+```
+
+The two kept axes follow the same rule as the projection to 2D in [Geometry](#geometry): `((k+1) % 3, (k+2) % 3)` if `n_k ≥ 0`, otherwise swapped. The UV formula is then the planar one, with these two axes.
+
+<!-- TODO(Theo), 1 à 2 lignes : Pourquoi l'axe du plus grand |n_i| ? Pourquoi réutiliser la même fonction que pour l'ear clipping (get_normal_axis_max) ?
+     (L'échange des axes quand n_k < 0 est posé dans Geometry, pas ici.) -->
 
 Mip levels (`create_texture_image`):
 
@@ -862,7 +900,10 @@ shade = \text{clamp}\left(\frac{\text{mod}(id, 8)}{7},\; 0.1,\; 0.95\right)
 \text{mix}(a, b, t) = a \cdot (1 - t) + b \cdot t
 ```
 
-<!-- TODO(Theo): Combien de niveaux pour une texture 1024×1024 ? Quelles sont les 8 valeurs de shade ? -->
+<!-- TODO(Theo), 1 à 2 lignes par formule :
+     - mip_levels : combien de niveaux pour une texture 1024×1024 ?
+     - shade : quelles sont les 8 valeurs ? Pourquoi clamp entre 0.1 et 0.95 ?
+     - mix : que donne mix(a, b, t) pour t = 0, 0.5, 1 ? Pourquoi est-ce une transition « douce » ? -->
 
 #### Time and movement
 
@@ -884,128 +925,71 @@ position \mathrel{+}= world\_dir \cdot lin\_vel \cdot dt
 orientation = orientation \times R(\widehat{axis},\; 50^\circ/s \cdot dt)
 ```
 
-<!-- TODO(Theo): Pourquoi tout multiplier par dt ? Que se passe-t-il si dir = 0 (aucune touche) ? -->
+<!-- TODO(Theo), 1 à 2 lignes : Pourquoi tout multiplier par dt (que se passerait-il sur un écran à 144 Hz sinon) ? Que se passe-t-il si dir = 0 (aucune touche) ? -->
 
 ### Technical choices
 
-<!-- TODO(Theo): Pour chaque choix : 2 à 4 phrases. D'abord le problème, puis ce que tu as choisi, puis l'alternative et pourquoi tu ne l'as pas prise. -->
+<!-- TODO(Theo): Une ligne de tableau par choix : remplace les … des colonnes « Problem » et « Alternative not kept, and why ».
+     Réponds en puces, en français, choix par choix, ici dans ce commentaire ; Claude traduira dans le tableau.
+     Questions pour t'aider :
 
-#### One `render_finished` semaphore per swapchain image
+     1. render_finished par image
+        - Que se passait-il avec un sémaphore par frame en vol (validation, image présentée trop tôt) ?
+        - Pourquoi le nombre d'images peut-il changer quand la swapchain est recréée ?
+        - Alternative : quelle autre façon de faire as-tu vue (tuto, spec, extension swapchain_maintenance1) ?
+     2. Secondary command buffers
+        - Avec un seul modèle, qu'apportent les buffers secondaires ? Les garderais-tu sur un nouveau projet ?
+        - Alternative : tout enregistrer dans le buffer primaire, ou enregistrer une seule fois au lieu de chaque frame ?
+     3. gl_PrimitiveID
+        - Pourquoi gl_PrimitiveID dans un fragment shader demande-t-il la feature geometryShader ?
+        - Alternative : une couleur par sommet (le champ color de Vertex) ? Quel problème avec les sommets partagés ?
+     4. float au lieu de bool
+        - Avec un bool, à quoi ressemblerait le changement de vue ?
+        - Pourquoi garder un bool côté CPU ET un float côté GPU ?
+     5. Box mapping et clé de déduplication
+        - Pourquoi un même sommet peut-il avoir deux UV ? Pourquoi l'axe doit-il être dans la clé ? Que verrait-on sur les arêtes du logo sans lui ?
+        - Pourquoi (0, 0) pour les sommets qui ont un vt ? Pourquoi cette valeur ne peut-elle pas être confondue avec de vrais axes ?
+        - Alternative : triplanar mapping, qu'est-ce que c'est et pourquoi ne pas l'avoir choisi (normales, coût, sujet) ?
+     6. Déplacement relatif à la caméra
+        - Avec un déplacement sur les axes du monde, que verrait l'utilisateur en appuyant sur W ?
+        - Pourquoi réutiliser camera_basis, déjà écrit pour look_to_rh ?
+     7. Orientation en matrice
+        - Pourquoi pas trois angles (x, y, z) ? Qu'est-ce que le gimbal lock ?
+        - Pourquoi une erreur d'arrondi s'accumule-t-elle ? Alternative : quaternions, ré-orthonormaliser ?
+     8. Ear clipping
+        - Coût : O(n²) ou O(n³) ? Est-ce un problème ici (trumpet.obj a des faces à 36 sommets) ?
+        - Alternatives : triangulation de Delaunay, monotone polygons ?
+     9. .spv commités
+        - Que se passe-t-il sur un poste de 42 sans glslc ?
+        - Risque : un .spv commité qui ne correspond plus au .glsl. Comment l'éviter ?
+        - Alternative : compiler depuis Rust (build.rs, crate shaderc) ? Est-ce autorisé par le sujet ?
+     10. Culling désactivé
+        - Qu'est-ce que le back-face culling ? Pourquoi certains modèles devenaient-ils troués ou invisibles de l'intérieur ?
+        - Coût : combien de triangles en plus sont dessinés ? Alternative : garder BACK et corriger l'ordre des sommets (winding) ?
 
-**In the code:** `render_finished_semaphores`, `images_in_flight`, the per-image command pools and their command buffers are created in `create_swapchain_sync_objects` / `create_image_command_pools` and destroyed in `destroy_swapchain` (commit `d2e57d1`).
-
-<!-- Questions pour t'aider :
-     - Que se passait-il avec un sémaphore par frame en vol (validation, image présentée trop tôt) ?
-     - Pourquoi le nombre d'images peut-il changer quand la swapchain est recréée ?
-     - Alternative : quelle autre façon de faire as-tu vue (tuto, spec, extension swapchain_maintenance1) ?
-     Fichiers à relire : src/vulkan/sync.rs, src/vulkan/command.rs, src/app.rs
+     Fichiers à relire : src/vulkan/sync.rs, src/vulkan/command.rs, src/app.rs, src/app/render.rs, shaders/shader.frag,
+     src/vulkan/device.rs, src/model.rs, src/obj.rs, src/math.rs, shaders/compile.sh, Makefile, src/vulkan/pipeline.rs
 -->
 
-#### Secondary command buffers
-
-**In the code:** one primary command buffer per image opens the render pass with `SECONDARY_COMMAND_BUFFERS`, then executes one secondary command buffer per model (`self.models = 1`). From the tutorial chapter "Secondary command buffers".
-
-<!-- Questions pour t'aider :
-     - Avec un seul modèle, qu'apportent les buffers secondaires ? Les garderais-tu sur un nouveau projet ?
-     - Alternative : tout enregistrer dans le buffer primaire, ou enregistrer une seule fois au lieu de chaque frame ?
-     Fichiers à relire : src/app/render.rs (update_command_buffer, update_secondary_command_buffer)
--->
-
-#### `gl_PrimitiveID` for the grey faces
-
-**In the code:** the fragment shader reads `gl_PrimitiveID`; `create_logical_device` enables `geometry_shader(true)`.
-
-<!-- Questions pour t'aider :
-     - Pourquoi gl_PrimitiveID dans un fragment shader demande-t-il cette feature ?
-     - Alternative : mettre une couleur par sommet (le champ color de Vertex) ? Quel problème avec les sommets partagés ?
-     Fichiers à relire : shaders/shader.frag, src/vulkan/device.rs, src/model.rs
--->
-
-#### A `float` instead of a `bool` in the push constants
-
-**In the code:** `mesh_view` is pushed as an `f32` (`mesh_view_value`, between 0 and 1), while `App::mesh_view` stays a `bool` on the CPU side.
-
-<!-- Questions pour t'aider :
-     - Avec un bool, à quoi ressemblerait le changement de vue ?
-     - Pourquoi garder un bool côté CPU ET un float côté GPU ?
-     Fichiers à relire : src/app/render.rs, shaders/shader.frag
--->
-
-#### Box mapping and the deduplication key
-
-**In the code:** each triangle without `vt` gets its own projection axes from its normal (`get_normal_axis_max`); the key of `unique_vertices` is `(FaceVertex, axes)`, with `(0, 0)` as axes for corners that have a `vt` index. The planar projection is still available with `N`. Alternative not kept: triplanar mapping in the fragment shader.
-
-<!-- Questions pour t'aider :
-     - Quel défaut de la projection plane le box mapping corrige-t-il ? Montre-le avec les captures 42_planar.png et 42_boxmapping.png.
-     - Triplanar mapping : qu'est-ce que c'est, et pourquoi ne pas l'avoir choisi (normales, coût, sujet) ?
-     - Pourquoi l'axe doit-il être dans la clé ? Que verrait-on sur les arêtes du logo sans lui ?
-     - Pourquoi (0, 0) pour les sommets qui ont un vt ? Pourquoi cette valeur ne peut-elle pas être confondue avec de vrais axes ?
-     - Pourquoi avoir gardé la projection plane avec une touche ?
-     Fichiers à relire : src/model.rs (load_model), src/obj.rs (get_normal_axis_max, FaceVertex)
--->
-
-#### Movement relative to the camera
-
-**In the code:** the held keys build a direction in the camera's frame `(forward, right, up)` with `camera_basis`, then converted to world space before moving the model.
-
-<!-- Questions pour t'aider :
-     - Avec un déplacement sur les axes du monde, que verrait l'utilisateur en appuyant sur W ?
-     - Pourquoi réutiliser camera_basis, déjà écrit pour look_to_rh ?
-     Fichiers à relire : src/math.rs (camera_basis, look_to_rh), src/app/render.rs
--->
-
-#### Orientation stored as a matrix
-
-**In the code:** `orientation: Matrix4` starts at the identity and is multiplied on the right by a small rotation each frame.
-
-<!-- Questions pour t'aider :
-     - Pourquoi pas trois angles (x, y, z) ? Qu'est-ce que le gimbal lock ?
-     - Pourquoi une erreur d'arrondi s'accumule-t-elle dans une matrice multipliée à chaque frame ?
-     - Alternative : quaternions ? Ré-orthonormaliser la matrice ?
-     Fichiers à relire : src/app/render.rs, src/math.rs (from_axis_angle)
--->
-
-#### Ear clipping instead of a fan
-
-**In the code:** see [section 3](#3-triangulation-fan-then-ear-clipping) (commit `cb4ef8b`).
-
-<!-- Questions pour t'aider :
-     - Quelles faces cassent l'éventail ? Combien en as-tu dans tes modèles de test (trumpet.obj a des faces à 36 sommets) ?
-     - Coût : l'ear clipping est en O(n²) ou O(n³) ? Est-ce un problème ici ?
-     - Alternatives : triangulation de Delaunay, monotone polygons ?
-     Fichiers à relire : src/obj.rs
--->
-
-#### Precompiled `.spv` committed, `glslc` optional
-
-Shaders need to be compiled before they can be used. `shader.vert` and `shader.frag` are compiled into `.spv` files which are loaded by Vulkan.
-
-**In the code:** `shaders/compile.sh` uses `glslc` from `PATH` or `~/.local/bin`; otherwise it keeps the committed `vert.spv` / `frag.spv`, and fails only if they are missing (commit `d9b0936`).
-
-<!-- Questions pour t'aider :
-     - Que se passe-t-il sur un poste de 42 sans glslc ?
-     - Risque : un .spv commité qui ne correspond plus au .glsl. Comment l'éviter ?
-     - Alternative : compiler les shaders depuis Rust (build.rs, crate shaderc) ? Est-ce autorisé par le sujet ?
-     Fichiers à relire : shaders/compile.sh, Makefile (compile-shaders), src/vulkan/pipeline.rs
--->
-
-#### Culling disabled
-
-**In the code:** `cull_mode(vk::CullModeFlags::NONE)` (was `BACK`, commit `557678c`).
-
-<!-- Questions pour t'aider :
-     - Qu'est-ce que le back-face culling ? Pourquoi certains modèles devenaient-ils troués ou invisibles de l'intérieur ?
-     - Coût : combien de triangles en plus sont dessinés ?
-     - Alternative : garder BACK et corriger l'ordre des sommets (winding) des faces ?
-     Fichiers à relire : src/vulkan/pipeline.rs
--->
+| # | Choice (in the code) | Problem | Alternative not kept, and why |
+| --- | --- | --- | --- |
+| 1 | **One `render_finished` semaphore per swapchain image**: `render_finished_semaphores`, `images_in_flight` and the per-image command pools are created with the swapchain and destroyed in `destroy_swapchain` (commit `d2e57d1`) | … | … |
+| 2 | **Secondary command buffers**: one primary command buffer per image opens the render pass with `SECONDARY_COMMAND_BUFFERS`, then executes one secondary command buffer per model (`self.models = 1`). From the tutorial | … | … |
+| 3 | **`gl_PrimitiveID` for the grey faces**: read in the fragment shader; `create_logical_device` enables `geometry_shader(true)` | … | … |
+| 4 | **A `float` instead of a `bool` in the push constants**: `mesh_view_value` (0 to 1) is pushed, `App::mesh_view` stays a `bool` on the CPU | … | … |
+| 5 | **Box mapping and the deduplication key**: axes chosen per triangle (`get_normal_axis_max`); key of `unique_vertices` = `(FaceVertex, axes)`, axes `(0, 0)` for corners with a `vt`. Planar projection still on `N` | … | … |
+| 6 | **Movement relative to the camera**: held keys build a direction in `(forward, right, up)` with `camera_basis`, converted to world space | … | … |
+| 7 | **Orientation stored as a matrix**: `orientation: Matrix4` starts at the identity, multiplied on the right by a small rotation each frame | … | … |
+| 8 | **Ear clipping instead of a fan**: see [section 3](#3-triangulation-fan-then-ear-clipping) (commit `cb4ef8b`) | … | … |
+| 9 | **Precompiled `.spv` committed, `glslc` optional**: `shaders/compile.sh` uses `glslc` from `PATH` or `~/.local/bin`, otherwise keeps the committed `.spv`, fails only if they are missing (commit `d9b0936`) | … | … |
+| 10 | **Culling disabled**: `cull_mode(NONE)` (was `BACK`, commit `557678c`) | … | … |
 
 ### Bugs & lessons learned
 
 Click on a bug to see what changed in the code.
 
-<!-- TODO(Theo): Pour chaque bug, remplis « Why it broke » et « What I learned » (une ou deux phrases chacun),
-     et complète les « (to describe / to confirm by Theo) ».
+<!-- TODO(Theo): Pour chaque bug, une seule ligne « Lesson » : pourquoi ça cassait, puis ce que tu en retiens.
+     Réponds en français dans le TODO du bug, Claude traduira. Complète aussi les « (to describe / to confirm by Theo) ».
      Questions pour t'aider :
      - Pour chaque bug : comment l'as-tu remarqué (à l'écran, Valgrind, VmRSS, validation, println!) ?
      - Quel outil ou réflexe t'aurait fait gagner du temps ?
@@ -1021,8 +1005,7 @@ Click on a bug to see what changed in the code.
 
 - **What changed in the code:** `Matrix4 × Vector4` now reads the matrix by columns (`self.x.x * rhs.x + self.y.x * rhs.y + …`).
 - **Commit:** (to confirm by Theo)
-- **Why it broke:** <!-- TODO(Theo) -->
-- **What I learned:** <!-- TODO(Theo) -->
+- **Lesson:** <!-- TODO(Theo): une ligne, pourquoi ça cassait + ce que tu en retiens -->
 
 </details>
 
@@ -1031,8 +1014,7 @@ Click on a bug to see what changed in the code.
 
 - **What changed in the code:** one term of `from_axis_angle` fixed.
 - **Commit:** (to confirm by Theo)
-- **Why it broke:** <!-- TODO(Theo) -->
-- **What I learned:** <!-- TODO(Theo) -->
+- **Lesson:** <!-- TODO(Theo): une ligne, pourquoi ça cassait + ce que tu en retiens -->
 
 </details>
 
@@ -1043,8 +1025,7 @@ Click on a bug to see what changed in the code.
 
 - **What changed in the code:** `resize_with(image_index + 1)` removed from `update_secondary_command_buffer`; the list is sized in `create_command_buffers`. The line was in the tutorial's text, not in its source code.
 - **Commit:** `04c4605`
-- **Why it broke:** <!-- TODO(Theo) -->
-- **What I learned:** <!-- TODO(Theo) -->
+- **Lesson:** <!-- TODO(Theo): une ligne, pourquoi ça cassait + ce que tu en retiens -->
 
 </details>
 
@@ -1053,8 +1034,7 @@ Click on a bug to see what changed in the code.
 
 - **What changed in the code:** per-image command pools destroyed in `destroy_swapchain` and recreated with the swapchain. The tutorial's repository has the same leak.
 - **Commit:** `d2e57d1`
-- **Why it broke:** <!-- TODO(Theo) -->
-- **What I learned:** <!-- TODO(Theo) -->
+- **Lesson:** <!-- TODO(Theo): une ligne, pourquoi ça cassait + ce que tu en retiens -->
 
 </details>
 
@@ -1065,8 +1045,7 @@ Click on a bug to see what changed in the code.
 
 - **What changed in the code:** `create_debug_utils_messenger_ext` called after the instance is created (before, the callback was only chained to `create_instance`).
 - **Commit:** `04c4605`
-- **Why it broke:** <!-- TODO(Theo) -->
-- **What I learned:** <!-- TODO(Theo) -->
+- **Lesson:** <!-- TODO(Theo): une ligne, pourquoi ça cassait + ce que tu en retiens -->
 
 </details>
 
@@ -1075,8 +1054,7 @@ Click on a bug to see what changed in the code.
 
 - **What changed in the code:** `DEPTH_STENCIL_ATTACHMENT_READ` replaced by `DEPTH_STENCIL_ATTACHMENT_WRITE` in the render pass dependency.
 - **Commit:** `04c4605`
-- **Why it broke:** <!-- TODO(Theo) -->
-- **What I learned:** <!-- TODO(Theo) -->
+- **Lesson:** <!-- TODO(Theo): une ligne, pourquoi ça cassait + ce que tu en retiens -->
 
 </details>
 
@@ -1085,8 +1063,7 @@ Click on a bug to see what changed in the code.
 
 - **What changed in the code:** `OUT_OF_DATE_KHR` from `acquire_next_image_khr` is matched: the swapchain is recreated and the frame skipped (before, `?` returned the error).
 - **Commit:** `04c4605`
-- **Why it broke:** <!-- TODO(Theo) -->
-- **What I learned:** <!-- TODO(Theo) -->
+- **Lesson:** <!-- TODO(Theo): une ligne, pourquoi ça cassait + ce que tu en retiens -->
 
 </details>
 
@@ -1095,8 +1072,7 @@ Click on a bug to see what changed in the code.
 
 - **What changed in the code:** the texture reload destroys the descriptor pool instead of the command pool.
 - **Commit:** (to confirm by Theo)
-- **Why it broke:** <!-- TODO(Theo) -->
-- **What I learned:** <!-- TODO(Theo) -->
+- **Lesson:** <!-- TODO(Theo): une ligne, pourquoi ça cassait + ce que tu en retiens -->
 
 </details>
 
@@ -1105,8 +1081,7 @@ Click on a bug to see what changed in the code.
 
 - **What changed in the code:** `render_finished` semaphores indexed by `image_index` instead of `frame` (comment removed in `798a975`).
 - **Commit:** (to confirm by Theo: fixed before the first commit)
-- **Why it broke:** <!-- TODO(Theo) -->
-- **What I learned:** <!-- TODO(Theo) -->
+- **Lesson:** <!-- TODO(Theo): une ligne, pourquoi ça cassait + ce que tu en retiens -->
 
 </details>
 
@@ -1117,8 +1092,7 @@ Click on a bug to see what changed in the code.
 
 - **What changed in the code:** the angle is accumulated, `curr_angle += ang_vel × dt`, instead of `ang_vel × total time`.
 - **Commit:** `e3085d6`
-- **Why it broke:** <!-- TODO(Theo) -->
-- **What I learned:** <!-- TODO(Theo) -->
+- **Lesson:** <!-- TODO(Theo): une ligne, pourquoi ça cassait + ce que tu en retiens -->
 
 </details>
 
@@ -1127,8 +1101,7 @@ Click on a bug to see what changed in the code.
 
 - **What changed in the code:** fan triangulation replaced by ear clipping; test file `concave_test.obj` added.
 - **Commits:** `cb4ef8b`, `b36c222`
-- **Why it broke:** <!-- TODO(Theo) -->
-- **What I learned:** <!-- TODO(Theo) -->
+- **Lesson:** <!-- TODO(Theo): une ligne, pourquoi ça cassait + ce que tu en retiens -->
 
 </details>
 
@@ -1137,8 +1110,7 @@ Click on a bug to see what changed in the code.
 
 - **What changed in the code:** axes reordered `(x, y, z)` → `(z, x, y)` in `build_vertex`.
 - **Commit:** `8fbe375`
-- **Why it broke:** <!-- TODO(Theo) -->
-- **What I learned:** <!-- TODO(Theo) -->
+- **Lesson:** <!-- TODO(Theo): une ligne, pourquoi ça cassait + ce que tu en retiens -->
 
 </details>
 
@@ -1147,8 +1119,7 @@ Click on a bug to see what changed in the code.
 
 - **What changed in the code:** the size check returns an error with the expected size instead of `panic!` (the check came from the tutorial).
 - **Commit:** `9fe9953`
-- **Why it broke:** <!-- TODO(Theo) -->
-- **What I learned:** <!-- TODO(Theo) -->
+- **Lesson:** <!-- TODO(Theo): une ligne, pourquoi ça cassait + ce que tu en retiens -->
 
 </details>
 
@@ -1303,13 +1274,8 @@ AI (Claude, by Anthropic) was used during this project. The list below is **to b
   - `shaders/compile.sh`;
   - the test file `resources/model/concave_test.obj`.
 - **Code review:** idiomatic Rust, naming, consistency with the subject.
-- **This README:** structure, diagrams, tables, the facts and formulas copied from the code, the banner and the figures (`docs/images/make_banner.py`, `docs/diagrams/make_diagrams.py`). The figures contain short explanations; every explanation in the text is written by Theo.
+- **This README:** structure, diagrams, tables, the facts and formulas copied from the code, the banner and the figures (`docs/images/make_banner.py`, `docs/diagrams/make_diagrams.py`).
 
-<!-- TODO(Theo): Ton propre bilan de l'usage de l'IA.
-     Questions pour t'aider :
-     - La liste ci-dessus est-elle exacte et complète ? Qu'est-ce qui manque (split en modules de src/vulkan/) ?
-     - Qu'as-tu appris grâce aux questions plutôt qu'aux réponses ? Un exemple précis ?
-     - Quand l'IA s'est-elle trompée ou t'a-t-elle fait perdre du temps ? Comment l'as-tu vérifié ?
-     - Saurais-tu réécrire et expliquer en soutenance chaque partie écrite par l'IA ?
-     Fichiers à relire : git log, src/vulkan/command.rs, src/vulkan/sync.rs, Makefile, shaders/compile.sh, src/model.rs, src/obj.rs
--->
+I used this AI mainly to comprehend key features of Vulkan for a future autonomous usage of this API.  
+To make sure I understood correctly the features and the notion used in this project, I used Claude as a secondary peer reviewer.  
+It only happened when my friends nor google couldn't help grasp the notion needed by the project.
