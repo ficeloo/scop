@@ -352,14 +352,16 @@ Unfortunately (or fortunately), this tutorial doesn't do everything the Scop pro
   <img src="docs/diagrams/data-pipeline.svg" alt="The data pipeline on a square face: parse_obj, triangulate_face, load_model, staging buffer, cmd_draw_indexed" width="860">
 </p>
 
-<!-- TODO(Theo): UN paragraphe. Réponds en puces, en français :
-     - En une phrase : comment un fichier texte devient-il des triangles stockés sur la carte graphique ?
-     - Pourquoi ne pas envoyer directement les faces au GPU ? À quoi servent les indices ?
-     - Pourquoi centrer et redimensionner le modèle ? Que se passerait-il avec teapot.obj sinon ?
-     - Pourquoi réordonner les axes (x, y, z) en (z, x, y) ? (indice : UP = (0, 0, 1) dans render.rs)
-     - Pourquoi passer par un staging buffer au lieu d'écrire directement dans la mémoire du GPU ?
-     Fichiers à relire : src/obj.rs, src/model.rs, src/vulkan/buffer.rs
--->
+So, how the data pipeline does work ?  
+
+Basically, we grab a whole bunch of data from the `.obj` file: where the vertices of our beloved faces are. Indeed, a `.obj` sometimes gives faces with 4 corners or more with all the informations we need.
+
+Then the model goes through 4 steps:
+
+1. **Triangulate**: the faces. Triangles are the basic building block of 3D rendering, the easiest shape for the GPU to compute, so we need to cut each faces into triangles of 3 indices.
+2. **Resize and centre**: otherwise the display would depend on the raw coordinates, and each object would be too zoomed in or too zoomed out.
+3. **Orient**: so the object shows up the right way round! In my project, up is the Z axis, like in the tutorial.
+4. **Send to the GPU**: the vertices and their indices are written into memory the CPU can reach (the staging buffer), then the GPU copies them once into its own, faster memory.
 
 In the code:
 
