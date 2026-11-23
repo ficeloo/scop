@@ -402,14 +402,14 @@ The indices of each face go through 2 steps:
 
 Before drawing, Scop cuts each face into triangles. A triangle is necessarily flat and convex whereas a quadrilateral may not be. Normals are used for knowing the orientation of a face and so, knowing how to flatten the face to avoid graphical artefacts.
 
-<!-- TODO(Theo): UN paragraphe, à la suite du tien. Réponds en puces, en français, avec l'exemple du L :
-     - En une phrase : comment découper une face à plusieurs coins en triangles sans déborder à l'extérieur ?
-     - Qu'est-ce qu'une « oreille » ? Pourquoi enlever une oreille ne casse-t-il jamais le reste du polygone ?
-     - Pourquoi les triangles 2 et 3 de l'éventail débordent-ils dans l'encoche ? Qu'a de spécial le sommet 1 ?
-     - Pourquoi projeter la face en 2D ? Quels tests ont besoin d'une face en 2D ?
-     - Quand le repli en éventail peut-il arriver ?
-     Fichiers à relire : src/obj.rs (triangulate_face, project_face_2d, cross_2d, is_convex, is_in_triangle), resources/model/concave_test.obj
--->
+With a concave shape, some triangles may be drawn where the model doesn't want them. This happens because the fan always starts from the first vertex and cuts the triangles from there, even when this vertex doesn't "see" all the other corners: the segment to a hidden corner crosses an edge and leaves the face.
+
+To fix this, we use ear clipping, which cuts the face one "ear" at a time. It never looks for the triangles that go outside: it only keeps the ones it can prove are inside, with 2 tests:
+
+1. **Turn left** at the middle corner: the corners go counterclockwise, so the inside of the face is always on the left. Turning right means a reflex corner, and the triangle would fill the notch.
+2. **Hold no other corner**: otherwise a piece of the face's edge pokes into the triangle.
+
+If no corner passes both tests, the face is broken (crossing edges, aligned corners), so we fall back to the fan to still draw something.
 
 - **Fan** (before commit `cb4ef8b`): triangles `(v0, vi, vi+1)` for `i` from 1 to `n − 2`.
 - **Ear clipping** (current version): `triangulate_face` in `src/obj.rs`.
