@@ -100,7 +100,7 @@ The Vulkan setup was completed by following Kyles Meyes’ tutorial on vulkanali
 | :---: | :---: |
 | ![42 logo, grey faces](docs/images/42_grey.png) | ![42 logo, textured](docs/images/42_textured.png) |
 | **Transition grey ↔ texture** | **Utah teapot** |
-| ![Transition in progress](docs/images/transition.gif) | ![Teapot](docs/images/teapot.png) |
+| ![Transition grey ↔ texture](docs/images/transition.webp) | ![Teapot](docs/images/teapot.png) |
 
 ### How it works, in 6 steps
 
