@@ -1,6 +1,6 @@
 # Screenshots to capture
 
-Images used by the main [README](../../README.md). Save them in this folder with **exactly** these names (PNG, about 1024×768, the default window size).
+Images used by the main [README](../../README.md). Save them in this folder with **exactly** these names (PNG, captured at the default window size, then cropped around the model: 640×480 for the screenshots of the Description, 800×400 for `concave_*.png`). Images shown side by side must share the same size and crop.
 
 Run `make MODE=release && ./scop` from the repository root. The program starts on `resources/model/42.obj` in grey view; `M` switches to the texture, `Enter` opens another model.
 
