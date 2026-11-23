@@ -371,13 +371,12 @@ In the code:
 
 #### 2. The OBJ parser
 
-<!-- TODO(Theo): UN paragraphe. Réponds en puces, en français :
-     - En une phrase : que lit le parser, et que rend-il ?
-     - Pourquoi lire en i32 puis convertir en usize ?
-     - Comment un indice négatif est-il résolu ? Pourquoi dépend-il de l'endroit où se trouve la ligne dans le fichier ?
-     - Que voit l'utilisateur si le fichier est faux, au démarrage et quand il charge un modèle avec Entrée ?
-     Fichiers à relire : src/obj.rs (resolve_index, parse_face_line), resources/model/42_bugged.obj
--->
+To display our favourite cat models and other cute stuff, we first need to read a `.obj` file. A `.obj` file is basically made of 4 kinds of data : `v` (vertex), `vt` (vertex texture), `vn` (vertex normal) and `f` (face). By parsing them, I build my `ObjModel`, whose faces are already cut into triangles, which will later be sent to Vulkan.
+
+The indices of each face go through 2 steps:
+
+1. **Read** as `i32`: an OBJ index can be negative, and a `usize` can't hold a negative number.
+2. **Resolve** into a 0-based `usize`, the only type Rust accepts to index a `Vec`. A negative index counts back from the last vertex read so far (`-1` is the latest one), so the same `-1` points to a different vertex depending on where the line is in the file.
 
 | Line | Read as | Notes |
 | --- | --- | --- |
